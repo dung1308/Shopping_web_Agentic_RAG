@@ -1,4 +1,4 @@
-﻿"""
+"""
 app/api/websocket.py — WebSocket endpoint for streaming chat responses.
 """
 
@@ -15,6 +15,7 @@ from backend.agents.supervisor import supervisor_node
 from backend.agents.retriever import retriever_node
 
 chat_ws_router = APIRouter()
+router = chat_ws_router
 
 
 @chat_ws_router.websocket("/ws/chat/{session_id}")

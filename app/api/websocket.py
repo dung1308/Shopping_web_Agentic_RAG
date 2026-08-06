@@ -15,6 +15,7 @@ from app.agents.supervisor import supervisor_node
 from app.agents.retriever import retriever_node
 
 chat_ws_router = APIRouter()
+router = chat_ws_router
 
 
 @chat_ws_router.websocket("/ws/chat/{session_id}")
