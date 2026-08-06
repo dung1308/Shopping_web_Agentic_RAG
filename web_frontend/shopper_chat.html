@@ -21,6 +21,59 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null, errorInfo: null };
+      }
+
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+
+      componentDidCatch(error, errorInfo) {
+        console.error("Caught by ErrorBoundary:", error, errorInfo);
+        this.setState({ errorInfo });
+      }
+
+      render() {
+        if (this.state.hasError) {
+          const errorText = `${this.state.error?.toString()}\n\nStack:\n${this.state.errorInfo?.componentStack || this.state.error?.stack || 'No stack trace'}`;
+          return (
+            <div class="p-6 bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-center max-w-4xl mx-auto">
+              <div class="glass-card p-6 rounded-2xl border border-rose-500/40 bg-rose-950/20">
+                <div class="flex items-center space-x-3 mb-4 text-rose-400">
+                  <span class="text-2xl">⚠️</span>
+                  <h2 class="text-lg font-bold">Component Error Caught Gracefully</h2>
+                </div>
+                <p class="text-xs text-slate-300 mb-4">
+                  An unexpected error occurred in this view. Copy the error details below and paste them into the assistant:
+                </p>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 font-mono text-xs text-rose-300 overflow-x-auto mb-4 whitespace-pre-wrap max-h-60 select-all">
+                  {errorText}
+                </div>
+                <div class="flex space-x-3">
+                  <button 
+                    onClick={() => navigator.clipboard.writeText(errorText).then(() => alert("Error logs copied to clipboard!"))}
+                    class="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow-lg"
+                  >
+                    📋 Copy Error Logs to Clipboard
+                  </button>
+                  <button 
+                    onClick={() => window.location.reload()}
+                    class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs px-4 py-2 rounded-xl transition border border-slate-700"
+                  >
+                    🔄 Reload Page
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
     const SAMPLE_PRODUCTS = [
       { id: 1, name: "Pedro Premium Leather Tote", store: "Pedro", floor: "Floor 2 • Unit 204", price: "790,000 VND", origPrice: "950,000 VND", discount: "17% OFF", tag: "BESTSELLER", image: "🛍️", desc: "Crafted from genuine calfskin leather with polished metallic accents and multi-pocket interior." },
       { id: 2, name: "Charles & Keith Quilted Bag", store: "Charles & Keith", floor: "Floor 2 • Unit 210", price: "750,000 VND", origPrice: "890,000 VND", discount: "15% OFF", tag: "POPULAR", image: "👜", desc: "Sleek quilted finish with detachable gold chain strap suitable for evening wear." },
@@ -252,9 +305,18 @@
 
     const container = document.getElementById('root');
     if (ReactDOM.createRoot) {
-      ReactDOM.createRoot(container).render(<App />);
+      ReactDOM.createRoot(container).render(
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
+      );
     } else {
-      ReactDOM.render(<App />, container);
+      ReactDOM.render(
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>,
+        container
+      );
     }
   </script>
 </body>

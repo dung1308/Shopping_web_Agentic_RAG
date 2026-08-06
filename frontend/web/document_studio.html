@@ -21,18 +21,69 @@
   <script type="text/babel">
     const { useState } = React;
 
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null, errorInfo: null };
+      }
+
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+
+      componentDidCatch(error, errorInfo) {
+        console.error("Caught by ErrorBoundary:", error, errorInfo);
+        this.setState({ errorInfo });
+      }
+
+      render() {
+        if (this.state.hasError) {
+          const errorText = `${this.state.error?.toString()}\n\nStack:\n${this.state.errorInfo?.componentStack || this.state.error?.stack || 'No stack trace'}`;
+          return (
+            <div class="p-6 bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-center max-w-4xl mx-auto">
+              <div class="glass-card p-6 rounded-2xl border border-rose-500/40 bg-rose-950/20">
+                <div class="flex items-center space-x-3 mb-4 text-rose-400">
+                  <span class="text-2xl">⚠️</span>
+                  <h2 class="text-lg font-bold">Component Error Caught Gracefully</h2>
+                </div>
+                <p class="text-xs text-slate-300 mb-4">
+                  An unexpected error occurred in this view. Copy the error details below and paste them into the assistant:
+                </p>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 font-mono text-xs text-rose-300 overflow-x-auto mb-4 whitespace-pre-wrap max-h-60 select-all">
+                  {errorText}
+                </div>
+                <div class="flex space-x-3">
+                  <button 
+                    onClick={() => navigator.clipboard.writeText(errorText).then(() => alert("Error logs copied to clipboard!"))}
+                    class="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow-lg"
+                  >
+                    📋 Copy Error Logs to Clipboard
+                  </button>
+                  <button 
+                    onClick={() => window.location.reload()}
+                    class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs px-4 py-2 rounded-xl transition border border-slate-700"
+                  >
+                    🔄 Reload Page
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
     function App() {
-      const [activeTab, setActiveTab] = useState('file'); // 'file' | 'link' | 'text'
+      const [activeTab, setActiveTab] = useState('file');
       const [storeId, setStoreId] = useState('store-zara-01');
       const [storeName, setStoreName] = useState('Zara Vietnam');
       const [floor, setFloor] = useState(2);
       
-      // Inputs
       const [rawLink, setRawLink] = useState('https://zara.com.vn/en/catalog.pdf');
       const [rawText, setRawText] = useState('Zara Men Autumn Collection 2026: Leather jackets starting from 1,850,000 VND.');
       const [selectedFile, setSelectedFile] = useState(null);
       
-      // Ingestion Status
       const [isIngesting, setIsIngesting] = useState(false);
       const [pipelineLogs, setPipelineLogs] = useState([
         { time: '18:55:01', step: 'Ready', msg: 'Document Ingestion Studio initialized. Select a source to ingest.' }
@@ -86,8 +137,6 @@
 
       return (
         <div class="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full space-y-6">
-          
-          <!-- Header -->
           <div class="flex items-center justify-between border-b border-slate-800 pb-4">
             <div>
               <div class="flex items-center space-x-3">
@@ -103,13 +152,8 @@
             </div>
           </div>
 
-          <!-- Main Workbench Grid -->
           <div class="grid grid-cols-12 gap-6 flex-1">
-            
-            <!-- Left Panel: Ingestion Form -->
             <div class="col-span-6 glass-card rounded-2xl p-6 flex flex-col space-y-5">
-              
-              <!-- Store Metadata Configuration -->
               <div class="grid grid-cols-3 gap-3 bg-slate-900/90 p-4 rounded-xl border border-slate-800">
                 <div>
                   <label class="text-[11px] font-bold text-slate-400 block mb-1">Store ID</label>
@@ -142,7 +186,6 @@
                 </div>
               </div>
 
-              <!-- Source Type Tabs -->
               <div>
                 <label class="text-xs font-bold text-slate-300 block mb-2">Select Source Ingestion Type</label>
                 <div class="grid grid-cols-3 gap-2 p-1 bg-slate-900 rounded-xl border border-slate-800">
@@ -167,7 +210,6 @@
                 </div>
               </div>
 
-              <!-- Dynamic Input Section based on tab -->
               <div class="flex-1 flex flex-col justify-center">
                 {activeTab === 'file' && (
                   <div class="border-2 border-dashed border-slate-700 hover:border-[#f04b4c] bg-slate-900/50 rounded-2xl p-8 text-center transition cursor-pointer relative">
@@ -214,7 +256,6 @@
                 )}
               </div>
 
-              <!-- Submit Ingest Action -->
               <button 
                 onClick={handleStartIngest}
                 disabled={isIngesting}
@@ -224,7 +265,6 @@
               </button>
             </div>
 
-            <!-- Right Panel: Real-time Ingestion Pipeline Monitor -->
             <div class="col-span-6 glass-card rounded-2xl p-6 flex flex-col">
               <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
                 <h2 class="text-sm font-bold text-white flex items-center space-x-2">
@@ -248,7 +288,6 @@
                 ))}
               </div>
             </div>
-
           </div>
         </div>
       );
@@ -256,9 +295,18 @@
 
     const container = document.getElementById('root');
     if (ReactDOM.createRoot) {
-      ReactDOM.createRoot(container).render(<App />);
+      ReactDOM.createRoot(container).render(
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
+      );
     } else {
-      ReactDOM.render(<App />, container);
+      ReactDOM.render(
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>,
+        container
+      );
     }
   </script>
 </body>
