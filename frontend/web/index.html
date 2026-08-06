@@ -3,100 +3,256 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shopping Mall AI — Web Frontend Client Portal</title>
+  <title>Shopping Mall Agentic RAG — AI Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f8fafc; }
     .glass-card { background: rgba(21, 29, 42, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .glass-card-hover:hover { background: rgba(30, 41, 59, 0.9); border-color: rgba(240, 75, 76, 0.4); transform: translateY(-2px); }
     .mono { font-family: 'JetBrains Mono', monospace; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-950 text-slate-100">
-  <header className="glass-card px-8 py-5 flex items-center justify-between border-b border-slate-800 sticky top-0 z-50">
-    <div className="flex items-center space-x-4">
-      <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#f04b4c] to-[#ad974f] flex items-center justify-center text-2xl shadow-lg shadow-rose-600/20">
+  <!-- Header Navbar -->
+  <header class="glass-card px-8 py-4 flex items-center justify-between border-b border-slate-800 sticky top-0 z-50">
+    <div class="flex items-center space-x-4">
+      <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#f04b4c] to-[#ad974f] flex items-center justify-center text-2xl shadow-lg shadow-rose-600/20">
         🛒
       </div>
       <div>
-        <h1 className="text-xl font-extrabold text-white tracking-wide">Dual-View Shopping Mall AI — Web Frontend Client</h1>
-        <p className="text-xs text-[#7acfd6]">Interactive Browser Applications (Hook Agency 2026 Color Palette)</p>
+        <h1 class="text-xl font-extrabold text-white tracking-wide">Shopping Mall Agentic RAG</h1>
+        <p class="text-xs text-[#7acfd6]">Dual-View AI Platform • Shopper Discovery & Admin Governance</p>
       </div>
     </div>
 
-    <div className="flex items-center space-x-3">
-      <span className="bg-[#f04b4c]/20 text-[#f04b4c] border border-[#f04b4c]/40 text-xs px-3.5 py-1.5 rounded-xl font-semibold">
-        5 Web Modules Active
+    <div class="flex items-center space-x-3">
+      <a href="/docs" target="_blank" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 text-xs px-4 py-2 rounded-xl font-semibold transition flex items-center space-x-2">
+        <span>⚡ OpenAPI Docs (/docs)</span>
+      </a>
+      <span class="bg-[#f04b4c]/20 text-[#f04b4c] border border-[#f04b4c]/40 text-xs px-3.5 py-2 rounded-xl font-semibold">
+        ● Server Online
       </span>
     </div>
   </header>
 
-  <div className="flex-1 flex overflow-hidden">
-    <aside className="w-80 border-r border-slate-800 glass-card p-6 flex flex-col space-y-6 overflow-y-auto">
-      <div>
-        <div className="text-[11px] font-bold tracking-wider uppercase text-[#f04b4c] mb-3 flex items-center space-x-2">
-          <span>🌐</span>
-          <span>Web Frontend Client Suite</span>
-        </div>
-        <div className="space-y-2" id="browser-nav">
-          <button onclick="loadWebModule('shopper_chat.html', 'Module 1: Shopper Conversational Assistant')" className="w-full text-left p-3 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-[#f04b4c]/50 transition group">
-            <div className="text-xs font-bold text-white group-hover:text-[#f04b4c]">1. Shopper Chat Hub</div>
-            <div className="text-[10px] text-slate-400">React • Conversational AI & Cards</div>
-          </button>
+  <!-- Hero Section -->
+  <section class="max-w-7xl mx-auto px-8 pt-8 pb-4 w-full">
+    <div class="text-center max-w-3xl mx-auto mb-8">
+      <h2 class="text-3xl font-extrabold text-white tracking-tight mb-3">
+        Welcome to the <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#f04b4c] via-[#7acfd6] to-[#ad974f]">Agentic RAG Portal</span>
+      </h2>
+      <p class="text-sm text-slate-400 leading-relaxed">
+        Select any module below to navigate directly to its dedicated page or preview it live inside the workbench portal.
+      </p>
+    </div>
 
-          <button onclick="loadWebModule('admin_governance.html', 'Module 2: Admin Data Governance Dashboard')" className="w-full text-left p-3 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-[#f04b4c]/50 transition group">
-            <div className="text-xs font-bold text-white group-hover:text-[#f04b4c]">2. Admin Governance Center</div>
-            <div className="text-[10px] text-slate-400">React • Catalog Anomaly Auditor</div>
-          </button>
-
-          <button onclick="loadWebModule('scraper_manager.html', 'Module 3: Playwright Scraper Manager')" className="w-full text-left p-3 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-[#f04b4c]/50 transition group">
-            <div className="text-xs font-bold text-white group-hover:text-[#f04b4c]">3. Scraper Workflow Manager</div>
-            <div className="text-[10px] text-slate-400">React • Crawler Config & Terminal</div>
-          </button>
-
-          <button onclick="loadWebModule('rag_debugger.html', 'Module 4: Qdrant Vector RAG Debugger')" className="w-full text-left p-3 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-[#f04b4c]/50 transition group">
-            <div className="text-xs font-bold text-white group-hover:text-[#f04b4c]">4. Vector RAG Visual Debugger</div>
-            <div className="text-[10px] text-slate-400">React • bge-m3 Embeddings & JSON</div>
-          </button>
-
-          <button onclick="loadWebModule('store_directory.html', 'Module 5: Interactive Mall Map')" className="w-full text-left p-3 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-[#f04b4c]/50 transition group">
-            <div className="text-xs font-bold text-white group-hover:text-[#f04b4c]">5. Interactive Mall Map</div>
-            <div className="text-[10px] text-slate-400">React • Spatial Directory & Deals</div>
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-auto border-t border-slate-800 pt-4">
-        <div className="text-[11px] font-bold text-slate-400 mb-2">🖥️ Desktop Client Note</div>
-        <p className="text-[11px] text-slate-500 leading-relaxed mb-3">Looking for the Desktop GUI App? Run the Desktop suite in terminal:</p>
-        <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-[10px] font-mono text-[#7acfd6] select-all">
-          python -m desktop_gui.main
-        </div>
-      </div>
-    </aside>
-
-    <main className="flex-1 bg-slate-950 p-6 flex flex-col overflow-hidden">
-      <div className="flex items-center justify-between mb-4">
+    <!-- Quick Navigation Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+      
+      <!-- Card 1: Shopper Chat -->
+      <div class="glass-card p-6 rounded-2xl transition duration-200 flex flex-col justify-between border border-slate-800 hover:border-[#f04b4c]/50 group">
         <div>
-          <h2 id="active-title" className="text-lg font-bold text-white">Module 1: Shopper Conversational Assistant</h2>
-          <p id="active-sub" className="text-xs text-slate-400">Web Frontend Client • Built with React 18 & Tailwind CSS</p>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center text-xl">
+              💬
+            </div>
+            <span class="text-[10px] font-mono font-semibold text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-full border border-rose-500/20">
+              Module 1
+            </span>
+          </div>
+          <h3 class="text-base font-bold text-white mb-1 group-hover:text-rose-400 transition">Shopper AI Assistant</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Conversational RAG assistant for shoppers with real-time SSE token streaming & product recommendation cards.
+          </p>
         </div>
-        <a id="standalone-link" href="shopper_chat.html" target="_blank" className="bg-slate-800 hover:bg-slate-700 text-xs font-semibold px-4 py-2 rounded-xl text-slate-300 transition flex items-center space-x-2 border border-slate-700">
-          <span>↗ Open Standalone Page</span>
-        </a>
+        <div class="flex items-center space-x-2 pt-2 border-t border-slate-800/80">
+          <a href="shopper_chat.html" class="flex-1 text-center bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition shadow-lg shadow-rose-600/20">
+            Open Full Page ➔
+          </a>
+          <button onclick="previewModule('shopper_chat.html', 'Shopper AI Assistant')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2.5 px-3 rounded-xl transition border border-slate-700">
+            Preview
+          </button>
+        </div>
       </div>
 
-      <div className="flex-1 rounded-2xl border border-slate-800 overflow-hidden bg-slate-900 relative shadow-2xl">
-        <iframe id="preview-frame" src="shopper_chat.html" className="w-full h-full border-0"></iframe>
+      <!-- Card 2: Mall Directory -->
+      <div class="glass-card p-6 rounded-2xl transition duration-200 flex flex-col justify-between border border-slate-800 hover:border-[#7acfd6]/50 group">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center text-xl">
+              🏬
+            </div>
+            <span class="text-[10px] font-mono font-semibold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-full border border-cyan-500/20">
+              Module 2
+            </span>
+          </div>
+          <h3 class="text-base font-bold text-white mb-1 group-hover:text-cyan-400 transition">Interactive Mall Map</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Explore floor plans, browse active store promotions, filter categories, and check real-time store availability.
+          </p>
+        </div>
+        <div class="flex items-center space-x-2 pt-2 border-t border-slate-800/80">
+          <a href="store_directory.html" class="flex-1 text-center bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition shadow-lg shadow-cyan-600/20">
+            Open Mall Map ➔
+          </a>
+          <button onclick="previewModule('store_directory.html', 'Interactive Mall Map')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2.5 px-3 rounded-xl transition border border-slate-700">
+            Preview
+          </button>
+        </div>
       </div>
-    </main>
-  </div>
+
+      <!-- Card 3: Admin Governance -->
+      <div class="glass-card p-6 rounded-2xl transition duration-200 flex flex-col justify-between border border-slate-800 hover:border-[#ad974f]/50 group">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center text-xl">
+              🛡️
+            </div>
+            <span class="text-[10px] font-mono font-semibold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+              Module 3
+            </span>
+          </div>
+          <h3 class="text-base font-bold text-white mb-1 group-hover:text-amber-400 transition">Admin Governance</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Data governance & compliance dashboard to inspect audit flags, non-compliant store data, and system metrics.
+          </p>
+        </div>
+        <div class="flex items-center space-x-2 pt-2 border-t border-slate-800/80">
+          <a href="admin_governance.html" class="flex-1 text-center bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition shadow-lg shadow-amber-600/20">
+            Open Admin ➔
+          </a>
+          <button onclick="previewModule('admin_governance.html', 'Admin Governance Dashboard')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2.5 px-3 rounded-xl transition border border-slate-700">
+            Preview
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 4: Vector RAG Debugger -->
+      <div class="glass-card p-6 rounded-2xl transition duration-200 flex flex-col justify-between border border-slate-800 hover:border-purple-500/50 group">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center text-xl">
+              🔮
+            </div>
+            <span class="text-[10px] font-mono font-semibold text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">
+              Module 4
+            </span>
+          </div>
+          <h3 class="text-base font-bold text-white mb-1 group-hover:text-purple-400 transition">Chroma Vector RAG Debugger</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Inspect bge-m3 dense vector embeddings (1024-dim), test metadata filters, and review cosine similarity scores.
+          </p>
+        </div>
+        <div class="flex items-center space-x-2 pt-2 border-t border-slate-800/80">
+          <a href="rag_debugger.html" class="flex-1 text-center bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition shadow-lg shadow-purple-600/20">
+            Open RAG Debugger ➔
+          </a>
+          <button onclick="previewModule('rag_debugger.html', 'Chroma Vector RAG Debugger')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2.5 px-3 rounded-xl transition border border-slate-700">
+            Preview
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 5: Scraper Manager -->
+      <div class="glass-card p-6 rounded-2xl transition duration-200 flex flex-col justify-between border border-slate-800 hover:border-emerald-500/50 group">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-xl">
+              🕷️
+            </div>
+            <span class="text-[10px] font-mono font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+              Module 5
+            </span>
+          </div>
+          <h3 class="text-base font-bold text-white mb-1 group-hover:text-emerald-400 transition">Scraper Workflow Manager</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Manage Playwright crawler schedules, view live scrape jobs, and monitor background ingestion tasks.
+          </p>
+        </div>
+        <div class="flex items-center space-x-2 pt-2 border-t border-slate-800/80">
+          <a href="scraper_manager.html" class="flex-1 text-center bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition shadow-lg shadow-emerald-600/20">
+            Open Scraper Manager ➔
+          </a>
+          <button onclick="previewModule('scraper_manager.html', 'Scraper Manager')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2.5 px-3 rounded-xl transition border border-slate-700">
+            Preview
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 6: OpenAPI Swagger Docs -->
+      <div class="glass-card p-6 rounded-2xl transition duration-200 flex flex-col justify-between border border-slate-800 hover:border-blue-500/50 group">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center text-xl">
+              ⚡
+            </div>
+            <span class="text-[10px] font-mono font-semibold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full border border-blue-500/20">
+              API Server
+            </span>
+          </div>
+          <h3 class="text-base font-bold text-white mb-1 group-hover:text-blue-400 transition">FastAPI REST OpenAPI Docs</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Test backend REST endpoints directly (`/api/user/*`, `/api/admin/*`, `/api/ingest/*`) via interactive Swagger UI.
+          </p>
+        </div>
+        <div class="flex items-center space-x-2 pt-2 border-t border-slate-800/80">
+          <a href="/docs" target="_blank" class="flex-1 text-center bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition shadow-lg shadow-blue-600/20">
+            Open Swagger Specs ➔
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Live Module Preview Drawer (Toggleable) -->
+  <section id="preview-section" class="max-w-7xl mx-auto px-8 pb-12 w-full hidden">
+    <div class="glass-card p-4 rounded-2xl border border-slate-800 flex flex-col h-[700px]">
+      <div class="flex items-center justify-between mb-3 px-2">
+        <div class="flex items-center space-x-3">
+          <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+          <h3 id="preview-title" class="text-sm font-bold text-white">Module Live Preview</h3>
+        </div>
+        <div class="flex items-center space-x-3">
+          <a id="preview-external" href="#" target="_blank" class="text-xs text-[#7acfd6] hover:underline font-semibold">
+            Open in New Window ↗
+          </a>
+          <button onclick="closePreview()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1 rounded-lg border border-slate-700">
+            ✕ Close Preview
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+        <iframe id="preview-frame" src="" class="w-full h-full border-0"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="mt-auto border-t border-slate-800 py-6 text-center text-xs text-slate-500 bg-slate-950">
+    <p>Shopping Mall Agentic RAG System • Dual-View Platform (2026 Theme)</p>
+  </footer>
 
   <script>
-    function loadWebModule(file, title) {
-      document.getElementById('preview-frame').src = file;
-      document.getElementById('active-title').innerText = title;
-      document.getElementById('standalone-link').href = file;
+    function previewModule(file, title) {
+      const section = document.getElementById('preview-section');
+      const frame = document.getElementById('preview-frame');
+      const titleElem = document.getElementById('preview-title');
+      const externalLink = document.getElementById('preview-external');
+
+      frame.src = file;
+      titleElem.innerText = title + ' (Live Preview)';
+      externalLink.href = file;
+      section.classList.remove('hidden');
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function closePreview() {
+      const section = document.getElementById('preview-section');
+      const frame = document.getElementById('preview-frame');
+      frame.src = '';
+      section.classList.add('hidden');
     }
   </script>
 </body>
