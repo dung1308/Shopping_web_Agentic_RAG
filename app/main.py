@@ -4,9 +4,11 @@ app/main.py — FastAPI application entry point.
 
 from contextlib import asynccontextmanager
 
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.config import get_settings
 from app.db.session import init_db
@@ -88,6 +90,11 @@ def create_app() -> FastAPI:
     @app.get("/health", tags=["Health"])
     async def health() -> dict:
         return {"status": "ok", "env": settings.app_env}
+
+    # ── Static Web Frontend Pages ───────────────────────────────────────────
+    web_dir = Path("web_frontend") if Path("web_frontend").exists() else Path("frontend/web")
+    if web_dir.exists():
+        app.mount("/", StaticFiles(directory=str(web_dir), html=True), name="static")
 
     return app
 
