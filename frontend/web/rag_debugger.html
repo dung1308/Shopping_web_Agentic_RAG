@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VinMall RAG — Vector Search & Prompt Visual Debugger</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f8fafc; }
+    .glass-card { background: rgba(21, 29, 42, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .code-bg { background: #080d16; font-family: 'Consolas', monospace; }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col p-6">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const SAMPLE_MATCHES = [
+      { id: '8812', title: 'Zara Rider Leather Jacket', price: '1,850,000 VND', store: 'Zara', score: 0.942, denseScore: 0.96, sparseScore: 0.90, floor: 'Floor 2' },
+      { id: '9104', title: 'Mango Faux Leather Biker', price: '1,490,000 VND', store: 'Mango', score: 0.887, denseScore: 0.89, sparseScore: 0.88, floor: 'Floor 1' },
+      { id: '7731', title: 'Pull&Bear Oversized Biker', price: '1,200,000 VND', store: 'Pull&Bear', score: 0.815, denseScore: 0.82, sparseScore: 0.80, floor: 'Floor 2' },
+      { id: '6219', title: 'H&M Faux Fur Leather Coat', price: '1,990,000 VND', store: 'H&M', score: 0.741, denseScore: 0.75, sparseScore: 0.72, floor: 'Floor 1' }
+    ];
+
+    function App() {
+      const [query, setQuery] = useState('black leather jacket women size M under 2 mil VND');
+      const [denseWeight, setDenseWeight] = useState(0.70);
+      const [sparseWeight, setSparseWeight] = useState(0.30);
+      const [selectedMatch, setSelectedMatch] = useState(SAMPLE_MATCHES[0]);
+
+      return (
+        <div className="flex-1 flex flex-col space-y-6">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <div className="flex items-center space-x-3">
+                <span className="text-2xl">🔮</span>
+                <h1 className="text-xl font-bold text-white tracking-wide">Qdrant Vector RAG Visual Debugger</h1>
+              </div>
+              <p className="text-xs text-[#7acfd6] mt-1">Hook Agency 2026 Palette • Inspect bge-m3 dense vectors, BM25 sparse scores & payload points</p>
+            </div>
+
+            <div className="flex items-center space-x-3 bg-slate-900 px-4 py-2 rounded-xl border border-slate-800 text-xs">
+              <span className="text-slate-400 font-medium">Model:</span>
+              <span className="text-[#7acfd6] font-bold">BAAI/bge-m3 (1024-dim)</span>
+            </div>
+          </div>
+
+          <div className="glass-card rounded-2xl p-5 space-y-4">
+            <div className="flex items-center space-x-3">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#f04b4c]"
+              />
+              <button className="bg-[#f04b4c] hover:bg-[#e0474c] text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-lg">
+                🔍 Run Hybrid Query
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6 pt-2 border-t border-slate-800">
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold text-[#f04b4c]">Dense Vector Weight (bge-m3)</span>
+                  <span className="font-mono font-bold text-white">{(denseWeight).toFixed(2)}</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={denseWeight}
+                  onChange={(e) => {
+                    const d = parseFloat(e.target.value);
+                    setDenseWeight(d);
+                    setSparseWeight(1 - d);
+                  }}
+                  className="w-full accent-[#f04b4c]"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold text-[#7acfd6]">Sparse Keyword Weight (BM25)</span>
+                  <span className="font-mono font-bold text-white">{(sparseWeight).toFixed(2)}</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={sparseWeight}
+                  onChange={(e) => {
+                    const s = parseFloat(e.target.value);
+                    setSparseWeight(s);
+                    setDenseWeight(1 - s);
+                  }}
+                  className="w-full accent-[#7acfd6]"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-1 grid grid-cols-12 gap-6 overflow-hidden">
+            <div className="col-span-6 glass-card rounded-2xl p-5 flex flex-col">
+              <h2 className="text-sm font-bold text-white mb-4">🎯 Top-4 Qdrant Cosine Matches</h2>
+
+              <div className="space-y-3 flex-1 overflow-y-auto">
+                {SAMPLE_MATCHES.map(item => (
+                  <div
+                    key={item.id}
+                    onClick={() => setSelectedMatch(item)}
+                    className={`p-4 rounded-xl border transition cursor-pointer ${
+                      selectedMatch.id === item.id
+                        ? 'bg-slate-900 border-[#f04b4c] shadow-lg shadow-rose-900/20'
+                        : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-sm text-white">{item.title}</span>
+                      <span className="bg-[#f04b4c]/20 text-[#f04b4c] font-mono font-bold text-xs px-2.5 py-1 rounded-lg border border-[#f04b4c]/30">
+                        Score: {item.score}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs text-slate-400">
+                      <span>🏷️ {item.price} • {item.store} ({item.floor})</span>
+                      <span className="text-[10px] text-[#7acfd6]">Dense: {item.denseScore} | Sparse: {item.sparseScore}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="col-span-6 glass-card rounded-2xl p-5 flex flex-col">
+              <h2 className="text-sm font-bold text-white mb-3">📄 Vector Point Payload Inspection</h2>
+
+              <div className="flex-1 code-bg rounded-xl p-4 text-xs overflow-y-auto border border-slate-800 text-[#7acfd6]">
+                <pre>{JSON.stringify({
+                  point_id: `point-${selectedMatch.id}-vector`,
+                  cosine_similarity: selectedMatch.score,
+                  hybrid_scores: {
+                    dense_bge_m3: selectedMatch.denseScore,
+                    sparse_bm25: selectedMatch.sparseScore
+                  },
+                  payload: {
+                    product_id: selectedMatch.id,
+                    title: selectedMatch.title,
+                    store_name: selectedMatch.store,
+                    floor_unit: selectedMatch.floor,
+                    price_vnd: selectedMatch.price,
+                    vector_dim: 1024
+                  }
+                }, null, 2)}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>

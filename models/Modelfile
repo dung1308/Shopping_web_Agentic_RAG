@@ -1,0 +1,11 @@
+FROM ./Phi-3.5-mini-instruct-Q4_K_M.gguf
+
+# System prompt for mall RAG assistant context
+SYSTEM """You are a helpful AI assistant for a shopping mall. You classify user intents and answer questions about products, stores, promotions, and navigation."""
+
+# Parameters tuned for Phi-3.5-mini instruction following
+PARAMETER temperature 0.3
+PARAMETER num_ctx 4096
+PARAMETER stop "<|end|>"
+PARAMETER stop "<|user|>"
+PARAMETER stop "<|assistant|>"

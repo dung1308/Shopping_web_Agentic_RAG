@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mall RAG — Handoff Blueprint & Review</title>
+<style>
+  :root{
+    --blue-deep:#0a3a5c;
+    --blue-panel:#0e4a73;
+    --blue-line: rgba(234,242,248,0.14);
+    --paper:#eaf2f8;
+    --paper-dim:#b9cfe0;
+    --red:#e63946;
+    --amber:#ffb703;
+    --green:#52b788;
+    --mono: 'JetBrains Mono','SFMono-Regular',Consolas,'Courier New',monospace;
+    --sans: 'Inter','Segoe UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      linear-gradient(var(--blue-line) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, var(--blue-line) 1px, transparent 1px) 0 0/40px 40px,
+      var(--blue-deep);
+    color:var(--paper);
+    font-family:var(--sans);
+    line-height:1.55;
+    padding: 48px 0 120px;
+  }
+  .sheet{
+    max-width:920px;
+    margin:0 auto 56px;
+    background:rgba(9,45,71,0.55);
+    border:1px solid var(--blue-line);
+    border-radius:2px;
+    padding:36px 44px;
+    position:relative;
+  }
+  .sheet::before{
+    content:attr(data-sheet);
+    position:absolute;
+    top:14px; right:18px;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.12em;
+    color:var(--paper-dim);
+  }
+  .titleblock{
+    max-width:920px;
+    margin:0 auto 40px;
+    padding:0 44px;
+  }
+  .titleblock .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:0.25em;
+    color:var(--amber);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:var(--mono);
+    font-size:clamp(28px,4vw,42px);
+    letter-spacing:0.01em;
+    margin:0 0 8px;
+    color:var(--paper);
+    text-transform:uppercase;
+    border-bottom:3px solid var(--paper);
+    display:inline-block;
+    padding-bottom:8px;
+  }
+  .subtitle{color:var(--paper-dim); font-size:15px; margin-top:14px; max-width:640px;}
+  h2{
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--amber);
+    border-left:3px solid var(--amber);
+    padding-left:12px;
+    margin:0 0 22px;
+  }
+  h3{
+    font-size:17px;
+    color:var(--paper);
+    margin:26px 0 8px;
+    font-weight:600;
+  }
+  p{color:var(--paper-dim); margin:0 0 12px; font-size:15px;}
+  code, .mono{font-family:var(--mono);}
+  pre{
+    background:#062338;
+    border:1px solid var(--blue-line);
+    border-radius:4px;
+    padding:16px 18px;
+    overflow-x:auto;
+    font-family:var(--mono);
+    font-size:13px;
+    color:#d4e8f7;
+    margin:10px 0 18px;
+  }
+  .grade-row{
+    display:grid;
+    grid-template-columns:120px 1fr;
+    gap:6px 16px;
+    margin:8px 0 26px;
+    font-family:var(--mono);
+    font-size:13px;
+  }
+  .grade-row div:nth-child(odd){color:var(--paper-dim);}
+  .grade-row div:nth-child(even){color:var(--paper);}
+  .badge{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.08em;
+    padding:3px 9px;
+    border-radius:3px;
+    text-transform:uppercase;
+    font-weight:700;
+  }
+  .badge.pass{background:rgba(82,183,136,0.18); color:var(--green); border:1px solid var(--green);}
+  .badge.fail{background:rgba(230,57,70,0.18); color:var(--red); border:1px solid var(--red);}
+  .badge.warn{background:rgba(255,183,3,0.18); color:var(--amber); border:1px solid var(--amber);}
+
+  .redmark{
+    position:relative;
+    border-left:3px solid var(--red);
+    background:rgba(230,57,70,0.08);
+    padding:14px 18px;
+    margin:14px 0 22px;
+    border-radius:0 4px 4px 0;
+  }
+  .redmark .tag{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--red);
+    font-weight:700;
+    display:block;
+    margin-bottom:6px;
+  }
+  .redmark p{color:var(--paper); margin:0;}
+  .redmark .fix{color:var(--paper-dim); margin-top:8px; font-size:14px;}
+  .redmark .fix::before{content:"→ fix: "; color:var(--green); font-family:var(--mono); font-weight:700;}
+
+  .checklist{list-style:none; padding:0; margin:0 0 20px;}
+  .checklist li{
+    display:flex; gap:12px; align-items:flex-start;
+    padding:9px 0;
+    border-bottom:1px dashed var(--blue-line);
+    font-size:14.5px;
+    color:var(--paper-dim);
+  }
+  .checklist li:last-child{border-bottom:none;}
+  .box{
+    flex:0 0 18px; height:18px; margin-top:2px;
+    border:1.5px solid var(--paper-dim);
+    border-radius:3px;
+  }
+  .checklist li.done .box{background:var(--green); border-color:var(--green);}
+  .checklist li.blocked .box{background:var(--red); border-color:var(--red);}
+  .checklist li strong{color:var(--paper); font-weight:600;}
+
+  .step-num{
+    font-family:var(--mono);
+    color:var(--amber);
+    font-weight:700;
+    margin-right:8px;
+  }
+  table{width:100%; border-collapse:collapse; margin:10px 0 24px; font-size:14px;}
+  th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--blue-line); color:var(--paper-dim);}
+  th{color:var(--paper); font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:0.05em;}
+  td strong{color:var(--paper);}
+  .footer-note{
+    max-width:920px; margin:0 auto; padding:0 44px;
+    color:var(--paper-dim); font-size:13px; font-family:var(--mono);
+  }
+  a{color:var(--amber);}
+</style>
+</head>
+<body>
+
+<div class="titleblock">
+  <div class="eyebrow">Handoff Review — Claude Sonnet 4.6 → Gemini</div>
+  <h1>Mall RAG Blueprint</h1>
+  <p class="subtitle">A graded reading of Phase 1, plus the setup + handoff sequence both a human and an agentic coding assistant can follow without guessing. Red marks are blockers. Amber is "verify before you build on it." Green is done.</p>
+</div>
+
+<!-- SHEET 1: GRADE -->
+<div class="sheet" data-sheet="A-101 · ASSESSMENT">
+  <h2>Overall Grade</h2>
+  <div class="grade-row">
+    <div>Scaffolding</div><div><span class="badge pass">Solid</span> typed config, async ORM, LangGraph state machine in place</div>
+    <div>Runnability</div><div><span class="badge fail">Not yet</span> app will crash on boot — no Redis/Qdrant, no graceful fallback</div>
+    <div>Security</div><div><span class="badge fail">Blocker</span> admin auth is a hardcoded stub, not flagged as deploy-blocking</div>
+    <div>Test coverage</div><div><span class="badge warn">Overstated</span> "13/13 passed" covers schemas only — zero integration coverage</div>
+    <div>Portability</div><div><span class="badge warn">Fragile</span> reference docs point to a local Windows path only one machine can see</div>
+    <div>Dependencies</div><div><span class="badge warn">Unverified</span> several package versions look implausible — confirm before trusting</div>
+  </div>
+  <p>None of this means start over. It means: fix the six items above <em>before</em> Gemini writes Phase 2 on top of them, because every one of these compounds the longer the codebase grows.</p>
+</div>
+
+<!-- SHEET 2: RED MARKS -->
+<div class="sheet" data-sheet="A-102 · CORRECTIONS">
+  <h2>Corrections — Fix Before Phase 2</h2>
+
+  <div class="redmark">
+    <span class="tag">01 · Unverified dependency versions</span>
+    <p>fastapi 0.141.1, langgraph 1.2.10, sqlalchemy 2.0.51, alembic 1.18.5, redis 8.1.0, uvicorn 0.52.0 — confirm these are the real installed versions, not typos or hallucinated numbers.</p>
+    <p class="fix">Run the command below and paste the real output into ARCHITECTURE.md before anyone else builds on it.</p>
+    <pre>pip list --format=freeze | grep -Ei "fastapi|langgraph|pydantic-ai|sqlalchemy|qdrant|langchain|redis|uvicorn|alembic|playwright"</pre>
+  </div>
+
+  <div class="redmark">
+    <span class="tag">02 · App cannot boot without external services</span>
+    <p>init_redis() / init_qdrant() run in the FastAPI lifespan with no fallback. Filed as a "suggestion," but it's the difference between a runnable handoff and a broken one.</p>
+    <p class="fix">Wrap both init calls in try/except with a logged warning in dev mode; only hard-fail in a prod-flagged environment.</p>
+  </div>
+
+  <div class="redmark">
+    <span class="tag">03 · Admin auth stub is a security hole, not a TODO</span>
+    <p>require_admin() always returns dev-admin. That's an open admin panel sitting behind zero real gate.</p>
+    <p class="fix">Add a loud runtime warning banner on every admin route while the stub is active, and put "DO NOT DEPLOY" in the docstring of require_admin() itself — not just in a markdown file that can get lost.</p>
+  </div>
+
+  <div class="redmark">
+    <span class="tag">04 · Test status overclaims coverage</span>
+    <p>"13/13 PASSED" covers Pydantic schema validation only — no DB, no graph, no API, no websocket.</p>
+    <p class="fix">Relabel as "Unit tests (schemas only)" and open a tracked gap for integration + graph tests before Phase 7 is treated as the first time tests are written.</p>
+  </div>
+
+  <div class="redmark">
+    <span class="tag">05 · Local-machine-only reference paths</span>
+    <p>C:\Users\Admin\.gemini\antigravity-ide\brain\...\implementation_plan.md will not resolve for an agent on a different machine or container.</p>
+    <p class="fix">Copy implementation_plan.md, cli_mcp_spec.md, and task.md into /docs in the repo itself. A handoff doc should never depend on a path only the sender can see.</p>
+  </div>
+
+  <div class="redmark">
+    <span class="tag">06 · Scraper has no compliance guardrail</span>
+    <p>Phase 2's Playwright crawler has no mention of robots.txt, request throttling, or ToS review for target sites.</p>
+    <p class="fix">Add a one-paragraph scraping policy to Phase 2's spec before implementation starts — rate limit, user-agent identification, and a documented allowlist of domains.</p>
+  </div>
+</div>
+
+<!-- SHEET 3: SETUP -->
+<div class="sheet" data-sheet="A-103 · SETUP SEQUENCE">
+  <h2>Setup — Run In This Order</h2>
+  <p>This is the sequence a human <em>or</em> an AI coding assistant should follow to get from a fresh clone to a running dev environment. Each step is a gate — don't proceed past a failing step.</p>
+
+  <h3><span class="step-num">1</span>Confirm environment</h3>
+  <pre>python --version          # expect 3.14.x
+pip list --format=freeze  # cross-check against ARCHITECTURE.md — see correction 01</pre>
+
+  <h3><span class="step-num">2</span>Bring up infrastructure</h3>
+  <pre>docker compose up -d postgres redis qdrant ollama
+docker compose ps          # all 4 should show "healthy" before continuing</pre>
+
+  <h3><span class="step-num">3</span>Verify Postgres</h3>
+  <pre>psql -U malluser -d mallrag -c "\dt"   # expect: no tables yet, connection succeeds</pre>
+
+  <h3><span class="step-num">4</span>Run migrations</h3>
+  <pre>alembic revision --autogenerate -m "initial schema"
+alembic upgrade head
+psql -U malluser -d mallrag -c "\dt"   # expect: 7 tables now present</pre>
+
+  <h3><span class="step-num">5</span>Install browser binaries</h3>
+  <pre>playwright install chromium</pre>
+
+  <h3><span class="step-num">6</span>Run what's testable today</h3>
+  <pre>python -m pytest tests/test_schemas.py -v   # expect: 13 passed</pre>
+
+  <h3><span class="step-num">7</span>Boot the app</h3>
+  <pre>uvicorn app.main:app --reload
+# if this crashes on Redis/Qdrant init, that's correction 02 — fix before continuing</pre>
+
+  <ul class="checklist">
+    <li class="done"><span class="box"></span><div><strong>Pass 1</strong> — dependencies installed, versions verified against real pip output</div></li>
+    <li class="done"><span class="box"></span><div><strong>Pass 2</strong> — docker services healthy</div></li>
+    <li class="blocked"><span class="box"></span><div><strong>Pass 3</strong> — migrations run, 7 tables confirmed in psql</div></li>
+    <li class="blocked"><span class="box"></span><div><strong>Pass 4</strong> — app boots cleanly with all services up</div></li>
+    <li class="blocked"><span class="box"></span><div><strong>Pass 5</strong> — app boots (degraded) with services down, per correction 02</div></li>
+  </ul>
+</div>
+
+<!-- SHEET 4: HANDOFF CONTRACT FOR THE AI ASSISTANT -->
+<div class="sheet" data-sheet="A-104 · AGENT HANDOFF">
+  <h2>Handoff Contract — Paste This to Gemini</h2>
+  <p>A structured block written so an agentic coding assistant can execute against it directly, without re-deriving context from prose.</p>
+  <pre>CONTEXT: Phase 1 of a mall RAG system is scaffolded (config, ORM, LangGraph
+skeleton, FastAPI routers, Pydantic AI validation schemas). Before starting
+Phase 2, resolve these blockers in order:
+
+1. Verify real installed package versions (pip list) and correct
+   ARCHITECTURE.md if they differ from what's documented.
+2. Add try/except around init_redis()/init_qdrant() in app/main.py lifespan
+   — log a warning and continue in dev mode instead of crashing.
+3. Add a loud "STUB — DO NOT DEPLOY" docstring + runtime log warning to
+   require_admin() in app/api/routers/admin.py.
+4. Copy implementation_plan.md, cli_mcp_spec.md, task.md into ./docs/
+   so the repo is self-contained.
+
+THEN implement Phase 2 exactly as scoped in ARCHITECTURE.md:
+- app/ingest/agents/scraper.py   (Playwright — respect robots.txt, add
+  request rate limiting, document target domain allowlist)
+- app/ingest/agents/validator.py (runs ScrapedProduct/AuditFlag schemas)
+- app/ingest/agents/indexer.py   (embed + upsert Qdrant, invalidate Redis)
+- app/ingest/cli.py              (Typer: scrape / validate / reindex / pipeline)
+- Wire /api/ingest/trigger to a background task calling these agents
+
+DO NOT mark Phase 2 complete without:
+- at least one integration test that runs the scrape→validate→index path
+  end to end against the docker-compose services
+- confirmation that ruff check and mypy app/ both pass clean</pre>
+</div>
+
+<div class="footer-note">Generated as a review artifact — not a substitute for actually running the setup sequence above and confirming each gate passes.</div>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Mall AI — Web Frontend Client Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f8fafc; }
+    .glass-card { background: rgba(21, 29, 42, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+  <header className="glass-card px-8 py-5 flex items-center justify-between border-b border-slate-800 sticky top-0 z-50">
+    <div className="flex items-center space-x-4">
+      <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#f04b4c] to-[#ad974f] flex items-center justify-center text-2xl shadow-lg shadow-rose-600/20">
+        🛒
+      </div>
+      <div>
+        <h1 className="text-xl font-extrabold text-white tracking-wide">Dual-View Shopping Mall AI — Web Frontend Client</h1>
+        <p className="text-xs text-[#7acfd6]">Interactive Browser Applications (Hook Agency 2026 Color Palette)</p>
+      </div>
+    </div>
+
+    <div className="flex items-center space-x-3">
+      <span className="bg-[#f04b4c]/20 text-[#f04b4c] border border-[#f04b4c]/40 text-xs px-3.5 py-1.5 rounded-xl font-semibold">
+        5 Web Modules Active
+      </span>
+    </div>
+  </header>
+
+  <div className="flex-1 flex overflow-hidden">
+    <aside className="w-80 border-r border-slate-800 glass-card p-6 flex flex-col space-y-6 overflow-y-auto">
+      <div>
+        <div className="text-[11px] font-bold tracking-wider uppercase text-[#f04b4c] mb-3 flex items-center space-x-2">
+          <span>🌐</span>
+          <span>Web Frontend Client Suite</span>
+        </div>
+        <div className="space-y-2" id="browser-nav">
+          <button onclick="loadWebModule('shopper_chat.html', 'Module 1: Shopper Conversational Assistant')" className="w-full text-left p-3 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-[#f04b4c]/50 transition group">
+            <div className="text-xs font-bold text-white group-hover:text-[#f04b4c]">1. Shopper Chat Hub</div>
+            <div className="text-[10px] text-slate-400">React • Conversational AI & Cards</div>
+          </button>
+
+          <button onclick="loadWebModule('admin_governance.html', 'Module 2: Admin Data Governance Dashboard')" className="w-full text-left p-3 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-[#f04b4c]/50 transition group">
+            <div className="text-xs font-bold text-white group-hover:text-[#f04b4c]">2. Admin Governance Center</div>
+            <div className="text-[10px] text-slate-400">React • Catalog Anomaly Auditor</div>
+          </button>
+
+          <button onclick="loadWebModule('scraper_manager.html', 'Module 3: Playwright Scraper Manager')" className="w-full text-left p-3 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-[#f04b4c]/50 transition group">
+            <div className="text-xs font-bold text-white group-hover:text-[#f04b4c]">3. Scraper Workflow Manager</div>
+            <div className="text-[10px] text-slate-400">React • Crawler Config & Terminal</div>
+          </button>
+
+          <button onclick="loadWebModule('rag_debugger.html', 'Module 4: Qdrant Vector RAG Debugger')" className="w-full text-left p-3 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-[#f04b4c]/50 transition group">
+            <div className="text-xs font-bold text-white group-hover:text-[#f04b4c]">4. Vector RAG Visual Debugger</div>
+            <div className="text-[10px] text-slate-400">React • bge-m3 Embeddings & JSON</div>
+          </button>
+
+          <button onclick="loadWebModule('store_directory.html', 'Module 5: Interactive Mall Map')" className="w-full text-left p-3 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-[#f04b4c]/50 transition group">
+            <div className="text-xs font-bold text-white group-hover:text-[#f04b4c]">5. Interactive Mall Map</div>
+            <div className="text-[10px] text-slate-400">React • Spatial Directory & Deals</div>
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-auto border-t border-slate-800 pt-4">
+        <div className="text-[11px] font-bold text-slate-400 mb-2">🖥️ Desktop Client Note</div>
+        <p className="text-[11px] text-slate-500 leading-relaxed mb-3">Looking for the Desktop GUI App? Run the Desktop suite in terminal:</p>
+        <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-[10px] font-mono text-[#7acfd6] select-all">
+          python -m desktop_gui.main
+        </div>
+      </div>
+    </aside>
+
+    <main className="flex-1 bg-slate-950 p-6 flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 id="active-title" className="text-lg font-bold text-white">Module 1: Shopper Conversational Assistant</h2>
+          <p id="active-sub" className="text-xs text-slate-400">Web Frontend Client • Built with React 18 & Tailwind CSS</p>
+        </div>
+        <a id="standalone-link" href="shopper_chat.html" target="_blank" className="bg-slate-800 hover:bg-slate-700 text-xs font-semibold px-4 py-2 rounded-xl text-slate-300 transition flex items-center space-x-2 border border-slate-700">
+          <span>↗ Open Standalone Page</span>
+        </a>
+      </div>
+
+      <div className="flex-1 rounded-2xl border border-slate-800 overflow-hidden bg-slate-900 relative shadow-2xl">
+        <iframe id="preview-frame" src="shopper_chat.html" className="w-full h-full border-0"></iframe>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function loadWebModule(file, title) {
+      document.getElementById('preview-frame').src = file;
+      document.getElementById('active-title').innerText = title;
+      document.getElementById('standalone-link').href = file;
+    }
+  </script>
+</body>
+</html>

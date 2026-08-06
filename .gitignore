@@ -1,0 +1,64 @@
+# ── Python ────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.whl
+
+# ── Env & secrets ─────────────────────────────────────────────────────────
+.env
+*.env.local
+.venv/
+venv/
+env/
+
+# ── IDE ───────────────────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# ── Testing & Coverage ────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ── Type checking ─────────────────────────────────────────────────────────
+.mypy_cache/
+.dmypy.json
+
+# ── Data & Models ─────────────────────────────────────────────────────────
+data/raw/
+data/validated/
+output/
+*.bin
+*.gguf
+*.ggml
+
+# ── Docker & Local Data volumes ───────────────────────────────────────────
+chroma_data/
+qdrant_data/
+postgres_data/
+redis_data/
+ollama_data/
+embed_models/
+.plans/
+
+# ── Playwright ────────────────────────────────────────────────────────────
+playwright-report/
+test-results/
+
+# ── Logs ──────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── OS ────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

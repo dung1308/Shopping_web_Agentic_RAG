@@ -1,0 +1,145 @@
+version: "3.9"
+
+services:
+
+  # ── Relational DB ────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: mall_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-malluser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mallpass}
+      POSTGRES_DB: ${POSTGRES_DB:-mallrag}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Cache & Session Store ────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: mall_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redispass}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redispass}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Vector Database ──────────────────────────────────────────────────────
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: mall_chroma
+    restart: unless-stopped
+    ports:
+      - "8200:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      ANONYMIZED_TELEMETRY: "FALSE"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/api/v1/heartbeat || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Local LLM (Ollama) ───────────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: mall_ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # GPU passthrough (comment out if no NVIDIA GPU available)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11434/ || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  # ── Embedding Model (Infinity + bge-m3) ─────────────────────────────────
+  infinity-embed:
+    image: michaelf34/infinity:latest
+    container_name: mall_embed
+    restart: unless-stopped
+    command: >
+      v2
+      --model-name-or-path BAAI/bge-m3
+      --port 7997
+      --batch-size 32
+      --device ${EMBED_DEVICE:-cpu}
+    ports:
+      - "7997:7997"
+    volumes:
+      - embed_models:/app/.cache
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:7997/health || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  # ── FastAPI Application ──────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mall_api
+    restart: unless-stopped
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/workspace        # hot-reload in dev
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      chroma:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+      infinity-embed:
+        condition: service_started
+
+  # ── MCP Server (SSE transport) ───────────────────────────────────────────
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mall_mcp
+    restart: unless-stopped
+    command: python -m app.mcp.server --transport sse --port 8001
+    ports:
+      - "8001:8001"
+    env_file: .env
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  redis_data:
+  chroma_data:
+  ollama_data:
+  embed_models:

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VinMall Admin — Data Governance & Audit Center</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f8fafc; }
+    .glass-card { background: rgba(21, 29, 42, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const INITIAL_AUDITS = [
+      { id: 'FLG-801', store: 'Zara VN', product: 'Leather Rider Jacket', rule: 'MAX_PRICE_BOUND', found: '22,500,000 VND', allowed: '< 15,000,000 VND', status: 'FLAGGED', severity: 'HIGH' },
+      { id: 'FLG-802', store: 'Uniqlo VN', product: 'Heattech Turtleneck', rule: 'INVALID_PROMO_DATE', found: '2024-01-01 -> 2027-01-01', allowed: 'Max 1 Year Range', status: 'FLAGGED', severity: 'MEDIUM' },
+      { id: 'FLG-803', store: 'Nike Mall', product: 'Air Jordan 1 High', rule: 'PRICE_CORRUPTED', found: '-250,000 VND', allowed: '> 0 VND', status: 'REJECTED', severity: 'CRITICAL' },
+      { id: 'FLG-804', store: 'Sephora', product: 'Chanel N°5 Perfume', rule: 'MISSING_MANDATORY', found: 'image_url = None', allowed: 'URL String Required', status: 'APPROVED', severity: 'LOW' },
+      { id: 'FLG-805', store: 'Adidas', product: 'Ultraboost Light', rule: 'MAX_PRICE_BOUND', found: '18,900,000 VND', allowed: '< 15,000,000 VND', status: 'FLAGGED', severity: 'HIGH' },
+    ];
+
+    function App() {
+      const [items, setItems] = useState(INITIAL_AUDITS);
+      const [filterStatus, setFilterStatus] = useState('ALL');
+      const [toast, setToast] = useState(null);
+
+      const showToast = (msg) => {
+        setToast(msg);
+        setTimeout(() => setToast(null), 3000);
+      };
+
+      const handleApprove = (id) => {
+        setItems(items.map(item => item.id === id ? { ...item, status: 'APPROVED' } : item));
+        showToast(`Audit flag ${id} approved by admin. Updated status in Neon DB & invalidated Redis cache.`);
+      };
+
+      const handleReject = (id) => {
+        setItems(items.map(item => item.id === id ? { ...item, status: 'REJECTED' } : item));
+        showToast(`Audit flag ${id} rejected. Product item isolated from vector store.`);
+      };
+
+      const filteredItems = items.filter(item => filterStatus === 'ALL' ? true : item.status === filterStatus);
+
+      return (
+        <div className="min-h-screen flex flex-col p-6 space-y-6">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-5">
+            <div>
+              <div className="flex items-center space-x-3">
+                <span className="text-2xl">🛡️</span>
+                <h1 className="text-xl font-bold text-white tracking-wide">Data Governance & Pydantic AI Command Center</h1>
+              </div>
+              <p className="text-xs text-[#7acfd6] mt-1">Hook Agency 2026 Palette • Real-time catalog anomaly detection & manual overrides</p>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <button onClick={() => showToast("Triggered re-validation across 14,280 products.")} className="bg-[#f04b4c] hover:bg-[#e0474c] text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-md">
+                ⚡ Run Re-Validation
+              </button>
+            </div>
+          </div>
+
+          {toast && (
+            <div className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs px-4 py-3 rounded-xl flex items-center justify-between shadow-xl">
+              <span>✅ {toast}</span>
+              <button onClick={() => setToast(null)} className="text-emerald-400 font-bold ml-4">✕</button>
+            </div>
+          )}
+
+          <div className="grid grid-cols-4 gap-5">
+            <div className="glass-card rounded-2xl p-5 border-l-4 border-[#7acfd6]">
+              <div className="text-xs font-semibold text-slate-400">Total Scraped Products</div>
+              <div className="text-2xl font-bold text-white mt-1">14,280</div>
+              <div className="text-[10px] text-emerald-400 mt-1">▲ 128 items added today</div>
+            </div>
+
+            <div className="glass-card rounded-2xl p-5 border-l-4 border-[#f04b4c]">
+              <div className="text-xs font-semibold text-slate-400">Active Audit Flags</div>
+              <div className="text-2xl font-bold text-[#f04b4c] mt-1">
+                {items.filter(i => i.status === 'FLAGGED').length} Pending
+              </div>
+              <div className="text-[10px] text-[#f04b4c] mt-1">Requires Admin Action</div>
+            </div>
+
+            <div className="glass-card rounded-2xl p-5 border-l-4 border-[#ad974f]">
+              <div className="text-xs font-semibold text-slate-400">Scrape Pipeline Throughput</div>
+              <div className="text-2xl font-bold text-[#ad974f] mt-1">45 URLs / min</div>
+              <div className="text-[10px] text-slate-400 mt-1">5 Playwright Workers</div>
+            </div>
+
+            <div className="glass-card rounded-2xl p-5 border-l-4 border-emerald-500">
+              <div className="text-xs font-semibold text-slate-400">Vector Sync Health</div>
+              <div className="text-2xl font-bold text-emerald-400 mt-1">99.8%</div>
+              <div className="text-[10px] text-slate-400 mt-1">1024-dim bge-m3 dense</div>
+            </div>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 flex-1 flex flex-col">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-sm font-bold text-white">🚩 Flagged Product Anomaly Inspector</h2>
+
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-slate-400">Status Filter:</span>
+                {['ALL', 'FLAGGED', 'APPROVED', 'REJECTED'].map(st => (
+                  <button
+                    key={st}
+                    onClick={() => setFilterStatus(st)}
+                    className={`text-xs px-3 py-1.5 rounded-lg border font-semibold transition ${
+                      filterStatus === st ? 'bg-[#f04b4c] border-[#e0474c] text-white' : 'bg-slate-900 border-slate-800 text-slate-400'
+                    }`}
+                  >
+                    {st}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
+                    <th className="py-3 px-4">Flag ID</th>
+                    <th className="py-3 px-4">Store</th>
+                    <th className="py-3 px-4">Product Title</th>
+                    <th className="py-3 px-4">Violated Rule</th>
+                    <th className="py-3 px-4">Found Value</th>
+                    <th className="py-3 px-4">Valid Threshold</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  {filteredItems.map(item => (
+                    <tr key={item.id} className="hover:bg-slate-900/50 transition">
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#7acfd6]">{item.id}</td>
+                      <td className="py-3.5 px-4 font-medium text-slate-200">{item.store}</td>
+                      <td className="py-3.5 px-4 text-slate-300 font-semibold">{item.product}</td>
+                      <td className="py-3.5 px-4">
+                        <span className="bg-slate-900 text-slate-300 px-2 py-0.5 rounded border border-slate-800 font-mono text-[10px]">
+                          {item.rule}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-[#f04b4c] font-medium">{item.found}</td>
+                      <td className="py-3.5 px-4 text-slate-400">{item.allowed}</td>
+                      <td className="py-3.5 px-4">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                          item.status === 'FLAGGED' ? 'bg-[#ad974f]/20 text-[#ad974f] border-[#ad974f]/40' :
+                          item.status === 'APPROVED' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' :
+                          'bg-[#f04b4c]/20 text-[#f04b4c] border-[#f04b4c]/40'
+                        }`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-right space-x-2">
+                        {item.status === 'FLAGGED' && (
+                          <React.Fragment>
+                            <button onClick={() => handleApprove(item.id)} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-md text-[10px]">
+                              Override & Approve
+                            </button>
+                            <button onClick={() => handleReject(item.id)} className="bg-[#f04b4c] hover:bg-[#e0474c] text-white font-bold px-2.5 py-1 rounded-md text-[10px]">
+                              Reject
+                            </button>
+                          </React.Fragment>
+                        )}
+                        {item.status !== 'FLAGGED' && (
+                          <span className="text-slate-500 italic text-[10px]">Processed</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
