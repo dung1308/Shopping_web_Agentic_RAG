@@ -75,10 +75,11 @@
     }
 
     function App() {
-      const [activeTab, setActiveTab] = useState('file');
-      const [storeId, setStoreId] = useState('store-zara-01');
-      const [storeName, setStoreName] = useState('Zara Vietnam');
-      const [floor, setFloor] = useState(2);
+      const [activeTab, setActiveTab] = useState('link'); // Default to link for web entry
+      const [storeName, setStoreName] = useState('Zara Online');
+      const [storeId, setStoreId] = useState('store-zara-online');
+      const [isOnline, setIsOnline] = useState(true); // Default to online store mode
+      const [floor, setFloor] = useState('Online');
       
       const [rawLink, setRawLink] = useState('https://zara.com.vn/en/catalog.pdf');
       const [rawText, setRawText] = useState('Zara Men Autumn Collection 2026: Leather jackets starting from 1,850,000 VND.');
@@ -86,8 +87,24 @@
       
       const [isIngesting, setIsIngesting] = useState(false);
       const [pipelineLogs, setPipelineLogs] = useState([
-        { time: '18:55:01', step: 'Ready', msg: 'Document Ingestion Studio initialized. Select a source to ingest.' }
+        { time: '18:55:01', step: 'Ready', msg: 'Document & Online Link Ingestion Studio initialized. Select a source to ingest.' }
       ]);
+
+      const handleStoreNameChange = (val) => {
+        setStoreName(val);
+        const autoId = 'store-' + val.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        setStoreId(autoId);
+      };
+
+      const handleOnlineToggle = (e) => {
+        const checked = e.target.checked;
+        setIsOnline(checked);
+        if (checked) {
+          setFloor('Online');
+        } else {
+          setFloor(2);
+        }
+      };
 
       const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
@@ -108,7 +125,7 @@
 
         setPipelineLogs(prev => [
           ...prev,
-          { time: timeNow(), step: '2. Docling Extraction', msg: 'Extracting markdown text & layout blocks via Docling engine...' }
+          { time: timeNow(), step: '2. Docling & Playwright Extraction', msg: isOnline ? 'Crawling online web page JS & links...' : 'Extracting layout blocks via Docling engine...' }
         ]);
 
         await new Promise(r => setTimeout(r, 1000));
@@ -129,7 +146,7 @@
 
         setPipelineLogs(prev => [
           ...prev,
-          { time: timeNow(), step: '5. ChromaDB Indexing', msg: `Upserted 14 vector chunks into collection 'mall_documents' (Store: ${storeName}, Floor: ${floor})` }
+          { time: timeNow(), step: '5. ChromaDB Indexing', msg: `Upserted vector chunks into ChromaDB (Store ID: ${storeId}, Store: ${storeName}, Location: ${isOnline ? 'Online / Web' : 'Floor ' + floor})` }
         ]);
 
         setIsIngesting(false);
@@ -141,9 +158,9 @@
             <div>
               <div class="flex items-center space-x-3">
                 <span class="text-2xl">📥</span>
-                <h1 class="text-xl font-bold text-white tracking-wide">Document & Data Ingestion Studio</h1>
+                <h1 class="text-xl font-bold text-white tracking-wide">Document & Online Link Ingestion Studio</h1>
               </div>
-              <p class="text-xs text-[#7acfd6] mt-1">Upload raw files (PDF, DOCX, TXT, Images) or send raw link URLs into ChromaDB RAG engine</p>
+              <p class="text-xs text-[#7acfd6] mt-1">Upload raw files (PDF, DOCX) or ingest online web URLs into ChromaDB RAG index</p>
             </div>
             <div class="flex items-center space-x-2">
               <span class="bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs px-3 py-1.5 rounded-xl font-mono">
@@ -154,52 +171,89 @@
 
           <div class="grid grid-cols-12 gap-6 flex-1">
             <div class="col-span-6 glass-card rounded-2xl p-6 flex flex-col space-y-5">
-              <div class="grid grid-cols-3 gap-3 bg-slate-900/90 p-4 rounded-xl border border-slate-800">
-                <div>
-                  <label class="text-[11px] font-bold text-slate-400 block mb-1">Store ID</label>
-                  <input 
-                    type="text" 
-                    value={storeId} 
-                    onChange={e => setStoreId(e.target.value)} 
-                    class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
-                  />
+              
+              <!-- Store Metadata Configuration -->
+              <div class="space-y-3 bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <span class="text-xs font-bold text-slate-200">🏪 Store Metadata & Location Settings</span>
+                  
+                  <!-- Online Store Checkbox Toggle -->
+                  <label class="flex items-center space-x-2 cursor-pointer bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-700">
+                    <input 
+                      type="checkbox" 
+                      checked={isOnline} 
+                      onChange={handleOnlineToggle}
+                      class="rounded accent-[#f04b4c]" 
+                    />
+                    <span class="text-xs font-semibold text-[#7acfd6]">Online Store (No Physical Floor)</span>
+                  </label>
                 </div>
-                <div>
-                  <label class="text-[11px] font-bold text-slate-400 block mb-1">Store Name</label>
-                  <input 
-                    type="text" 
-                    value={storeName} 
-                    onChange={e => setStoreName(e.target.value)} 
-                    class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
-                  />
+
+                <div class="grid grid-cols-3 gap-3 pt-1">
+                  <div>
+                    <label class="text-[11px] font-bold text-slate-400 block mb-1">Store Name</label>
+                    <input 
+                      type="text" 
+                      value={storeName} 
+                      onChange={e => handleStoreNameChange(e.target.value)} 
+                      class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-[#f04b4c]"
+                    />
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between mb-1">
+                      <label class="text-[11px] font-bold text-slate-400">Store ID</label>
+                      <span class="text-[9px] text-slate-500" title="Used as a unique filter key in ChromaDB">❓ Why ID</span>
+                    </div>
+                    <input 
+                      type="text" 
+                      value={storeId} 
+                      onChange={e => setStoreId(e.target.value)} 
+                      class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label class="text-[11px] font-bold text-slate-400 block mb-1">
+                      {isOnline ? 'Location' : 'Floor Level'}
+                    </label>
+                    {isOnline ? (
+                      <input 
+                        type="text" 
+                        disabled 
+                        value="Online / Web" 
+                        class="w-full bg-slate-950/60 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-[#7acfd6] font-semibold cursor-not-allowed"
+                      />
+                    ) : (
+                      <input 
+                        type="number" 
+                        min="1" 
+                        max="10" 
+                        value={floor} 
+                        onChange={e => setFloor(e.target.value)} 
+                        class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                      />
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <label class="text-[11px] font-bold text-slate-400 block mb-1">Floor Level</label>
-                  <input 
-                    type="number" 
-                    min="1" 
-                    max="10" 
-                    value={floor} 
-                    onChange={e => setFloor(e.target.value)} 
-                    class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
-                  />
-                </div>
+                <p class="text-[10px] text-slate-400 italic">
+                  💡 <b>Store ID</b> is a unique metadata filter used by ChromaDB to update or delete vectors for a specific store without affecting other stores.
+                </p>
               </div>
 
+              <!-- Source Type Tabs -->
               <div>
-                <label class="text-xs font-bold text-slate-300 block mb-2">Select Source Ingestion Type</label>
+                <label class="text-xs font-bold text-slate-300 block mb-2">Select Ingestion Source Type</label>
                 <div class="grid grid-cols-3 gap-2 p-1 bg-slate-900 rounded-xl border border-slate-800">
+                  <button 
+                    onClick={() => setActiveTab('link')}
+                    class={`py-2 text-xs font-bold rounded-lg transition ${activeTab === 'link' ? 'bg-[#f04b4c] text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    🌐 Online Web Link / PDF URL
+                  </button>
                   <button 
                     onClick={() => setActiveTab('file')}
                     class={`py-2 text-xs font-bold rounded-lg transition ${activeTab === 'file' ? 'bg-[#f04b4c] text-white shadow' : 'text-slate-400 hover:text-white'}`}
                   >
                     📄 Raw File (PDF/DOCX)
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab('link')}
-                    class={`py-2 text-xs font-bold rounded-lg transition ${activeTab === 'link' ? 'bg-[#f04b4c] text-white shadow' : 'text-slate-400 hover:text-white'}`}
-                  >
-                    🌐 Raw Link / URL
                   </button>
                   <button 
                     onClick={() => setActiveTab('text')}
@@ -210,7 +264,22 @@
                 </div>
               </div>
 
+              <!-- Dynamic Input Section based on tab -->
               <div class="flex-1 flex flex-col justify-center">
+                {activeTab === 'link' && (
+                  <div class="space-y-2">
+                    <label class="text-xs text-slate-400 font-semibold block">Paste Online Web Store URL or Direct PDF Link</label>
+                    <input 
+                      type="url" 
+                      value={rawLink}
+                      onChange={e => setRawLink(e.target.value)}
+                      placeholder="https://zara.com/vn/en or https://example.com/catalog.pdf" 
+                      class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#f04b4c]"
+                    />
+                    <p class="text-[10px] text-slate-400">Playwright will render JS e-commerce pages or download PDF binaries directly.</p>
+                  </div>
+                )}
+
                 {activeTab === 'file' && (
                   <div class="border-2 border-dashed border-slate-700 hover:border-[#f04b4c] bg-slate-900/50 rounded-2xl p-8 text-center transition cursor-pointer relative">
                     <input 
@@ -221,7 +290,7 @@
                     />
                     <div class="text-3xl mb-2">📁</div>
                     <div class="text-xs font-bold text-white mb-1">
-                      {selectedFile ? selectedFile.name : 'Click or Drag & Drop Raw File Here'}
+                      {selectedFile ? selectedFile.name : 'Click or Drag & Drop File Here'}
                     </div>
                     <p class="text-[10px] text-slate-400">
                       Supports PDF, DOCX, TXT, JSON, PNG, JPG (Max 50MB)
@@ -229,25 +298,11 @@
                   </div>
                 )}
 
-                {activeTab === 'link' && (
-                  <div class="space-y-2">
-                    <label class="text-xs text-slate-400 font-semibold block">Paste Web URL or Direct PDF Link</label>
-                    <input 
-                      type="url" 
-                      value={rawLink}
-                      onChange={e => setRawLink(e.target.value)}
-                      placeholder="https://example.com/catalog.pdf" 
-                      class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#f04b4c]"
-                    />
-                    <p class="text-[10px] text-slate-500">Playwright will render JS pages or download direct PDF file links automatically.</p>
-                  </div>
-                )}
-
                 {activeTab === 'text' && (
                   <div class="space-y-2">
                     <label class="text-xs text-slate-400 font-semibold block">Paste Raw Text or HTML String</label>
                     <textarea 
-                      rows="6"
+                      rows="5"
                       value={rawText}
                       onChange={e => setRawText(e.target.value)}
                       class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#f04b4c]"
@@ -256,6 +311,7 @@
                 )}
               </div>
 
+              <!-- Submit Ingest Action -->
               <button 
                 onClick={handleStartIngest}
                 disabled={isIngesting}
@@ -265,6 +321,7 @@
               </button>
             </div>
 
+            <!-- Right Panel: Real-time Ingestion Pipeline Monitor -->
             <div class="col-span-6 glass-card rounded-2xl p-6 flex flex-col">
               <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
                 <h2 class="text-sm font-bold text-white flex items-center space-x-2">
