@@ -1,206 +1,164 @@
-# 🛒 Mall RAG — Agentic AI System for Shopping Malls
+# 🛒 Shopping Web Agentic RAG — Dual-View AI System
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.141-009688.svg)](https://fastapi.tiangolo.com/)
-[![LangGraph](https://img.shields.io/badge/LangGraph-1.2-orange.svg)](https://python.langchain.com/docs/langgraph/)
-[![Docling](https://img.shields.io/badge/Docling-2.118-blueviolet.svg)](https://ds4sd.github.io/docling/)
-[![LiteLLM](https://img.shields.io/badge/LiteLLM-1.95-yellow.svg)](https://litellm.ai/)
-[![Qdrant](https://img.shields.io/badge/Qdrant-Vector_DB-red.svg)](https://qdrant.tech/)
-[![Neon](https://img.shields.io/badge/Neon-PostgreSQL_18-00e599.svg)](https://neon.tech/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688.svg)](https://fastapi.tiangolo.com/)
+[![LangGraph](https://img.shields.io/badge/LangGraph-0.2.35-orange.svg)](https://python.langchain.com/docs/langgraph/)
+[![ChromaDB](https://img.shields.io/badge/ChromaDB-1.5.9-blueviolet.svg)](https://www.trychroma.com/)
+[![Neon](https://img.shields.io/badge/Neon-PostgreSQL_Serverless-00e599.svg)](https://neon.tech/)
+[![GitHub](https://img.shields.io/badge/GitHub-dung1308%2FShopping__web__Agentic__RAG-black?logo=github)](https://github.com/dung1308/Shopping_web_Agentic_RAG.git)
 
-> An autonomous agentic RAG (Retrieval-Augmented Generation) system for modern shopping malls. Combines a **conversational AI assistant** for shoppers with a **data governance dashboard** for admins — backed by a hybrid vector search engine, multi-format document ingestion, and a multi-provider LLM reader.
+> An autonomous **Dual-View Agentic RAG (Retrieval-Augmented Generation)** system designed for modern shopping malls. Combines a **conversational AI assistant for shoppers** with a **data governance dashboard for admins** — backed by ChromaDB hybrid vector search, multi-format document ingestion (PDF, DOCX, HTML, Images), and multi-provider LLM reading.
 
 ---
 
-## 📖 Read the Guidelines First
+## 📖 System Guidelines & Architecture
 
-All documentation lives in [`guidelines/`](./guidelines/). Start here:
+All primary documentation lives in [`guidelines/`](./guidelines). Click any link below to explore:
 
-| # | Guide | What you'll learn |
+| # | Guide | What You'll Learn |
 |---|-------|------------------|
-| [00](./guidelines/00_overview.md) | System Overview | Design philosophy, 3-layer architecture, tech decisions |
-| [01](./guidelines/01_architecture.md) | Architecture Diagrams | Full system + RAG pipeline + ingestion flow diagrams |
-| [02](./guidelines/02_backend_guide.md) | Backend Guide | LangGraph agents, RAG pipeline, Qdrant, config system |
-| [03](./guidelines/03_frontend_guide.md) | Frontend Guide | Web pages, desktop GUI, how they talk to the bridge |
-| [04](./guidelines/04_bridge_guide.md) | **API Bridge Guide** | **GraphQL vs REST vs SSE — when and why to use each** |
-| [05](./guidelines/05_extraction_guide.md) | Extraction Guide | Docling, Playwright, chunking, LLM reading pipeline |
-| [06](./guidelines/06_environment_setup.md) | Environment Setup | All `.env` variables, service setup, common issues |
-| [07](./guidelines/07_development_guide.md) | Development Guide | Testing, CLI commands, adding new features |
+| [00](./guidelines/00_overview.md) | [**System Overview**](./guidelines/00_overview.md) | Design philosophy, 3-layer architecture, tech decisions |
+| [01](./guidelines/01_architecture.md) | [**Architecture Diagrams**](./guidelines/01_architecture.md) | End-to-end flow, RAG state machine, document ingestion pipeline |
+| [02](./guidelines/02_backend_guide.md) | [**Backend Guide**](./guidelines/02_backend_guide.md) | LangGraph agents, ChromaDB vector search, SQLAlchemy async ORM |
+| [03](./guidelines/03_frontend_guide.md) | [**Frontend Guide**](./guidelines/03_frontend_guide.md) | Web HTML/JS interface & Desktop Tkinter GUI apps |
+| [04](./guidelines/04_bridge_guide.md) | [**API Bridge Guide**](./guidelines/04_bridge_guide.md) | REST routers, WebSocket chat streaming, MCP server integration |
+| [05](./guidelines/05_extraction_guide.md) | [**Extraction Guide**](./guidelines/05_extraction_guide.md) | Docling, Playwright, chunking strategies, LiteLLM reader |
+| [06](./guidelines/06_environment_setup.md) | [**Environment Setup**](./guidelines/06_environment_setup.md) | `.env` variables, service setup, credentials |
+| [07](./guidelines/07_development_guide.md) | [**Development Guide**](./guidelines/07_development_guide.md) | Testing practices, CLI tools (`mall-ingest`), feature addition |
 
 ---
 
-## 🏗️ Project Structure
+## 📁 Interactive Project Directory Map
+
+Click any folder name to navigate directly to its dedicated README and module documentation:
 
 ```
-portfolio/
+Shopping_web_Agentic_RAG/
 │
-├── 📘 guidelines/               ← Read this first — all documentation
-│   ├── 00_overview.md
-│   ├── 01_architecture.md
-│   ├── 02_backend_guide.md
-│   ├── 03_frontend_guide.md
-│   ├── 04_bridge_guide.md       ← GraphQL + SSE + REST explained
-│   ├── 05_extraction_guide.md
-│   ├── 06_environment_setup.md
-│   └── 07_development_guide.md
+├── 📘 guidelines/               ← Full system guidelines & standards
 │
-├── 🟡 frontend/                 ← What users see & touch
-│   ├── web/                     HTML + Vanilla JS (6 pages)
-│   │   ├── index.html           Landing page
-│   │   ├── shopper_chat.html    AI chat assistant
-│   │   ├── store_directory.html Browse stores
-│   │   ├── admin_governance.html Audit dashboard
-│   │   ├── rag_debugger.html    RAG pipeline debug
-│   │   └── scraper_manager.html Scrape job manager
-│   └── desktop/                 Python Tkinter desktop GUI
-│       ├── main.py
-│       ├── admin_dashboard.py
-│       ├── shopper_assistant.py
-│       └── ...
-│
-├── 🌉 bridge/                   ← API layer connecting frontend ↔ backend
-│   ├── main.py                  FastAPI app factory (entry point)
-│   ├── api/
-│   │   ├── websocket.py         WebSocket /ws/chat/{session_id}
-│   │   └── routers/
-│   │       ├── user.py          GET /api/user/* (products, stores, chat)
-│   │       ├── admin.py         GET/POST /api/admin/* (audit, jobs)
-│   │       └── ingest.py        POST /api/ingest/* (pipeline triggers)
-│   └── mcp/                     MCP tool bridge (stdio/SSE)
-│
-├── 🔵 backend/                  ← Pure business logic (no HTTP)
-│   ├── config.py                All settings via Pydantic-Settings v2
-│   ├── agents/                  LangGraph RAG pipeline
-│   │   ├── state.py             MallRAGState shared data bag
-│   │   ├── supervisor.py        Intent classifier + router
-│   │   ├── retriever.py         Qdrant hybrid vector search
-│   │   ├── responder.py         LLM answer generator + streaming
-│   │   └── mall_graph.py        Compiled LangGraph StateGraph
-│   ├── db/                      SQLAlchemy 2.0 async ORM
+├── 🔵 backend/                  ← Core business logic & LangGraph state machine
+│   ├── agents/                  LangGraph nodes (supervisor, retriever, responder)
+│   ├── api/                     Internal routers
 │   ├── cache/                   Async Redis client
-│   ├── vector/                  Qdrant client (2 collections)
-│   ├── schemas/                 Pydantic AI validation models
-│   └── ingest/                  Document ingestion pipeline
-│       ├── cli.py               Typer CLI (mall-ingest)
-│       ├── agents/              Scraper / Validator / Indexer / DocIngester
-│       ├── extractors/          Docling / Playwright / Chunker
-│       └── readers/             LiteLLM multi-provider reader
+│   ├── db/                      SQLAlchemy 2.0 async ORM & Neon Postgres models
+│   ├── ingest/                  Scraper, Validator, Indexer, DocIngester, CLI
+│   ├── mcp/                     Model Context Protocol server implementation
+│   ├── schemas/                 Pydantic AI product & audit validation models
+│   └── vector/                  ChromaDB client (embedded local & server modes)
 │
-├── 🗄️  alembic/                 Database migrations
-├── 🤖 models/                   Local LLM weights (Phi-3.5.gguf)
-├── 🔧 scripts/                  Utility scripts
-├── 🧪 tests/                    Pytest suite (33 tests)
+├── 🌉 bridge/                   ← FastAPI bridge layer (REST + WebSockets + MCP)
+│   ├── api/                     REST routers & WebSocket stream router
+│   ├── mcp/                     MCP tool bridges
+│   └── main.py                  FastAPI server factory & CLI runner (`mall-serve`)
 │
-├── docker-compose.yml
-├── pyproject.toml
-├── .env.example
-└── README.md
+├── 🟡 frontend/                 ← User & Admin UI interfaces
+│   ├── web/                     6 Web pages (HTML5, Vanilla CSS 2026 Theme)
+│   └── desktop/                 Python Tkinter desktop GUI module
+│
+├── 🖥️ desktop_gui/              ← Desktop management application launcher & tools
+│
+├── 📄 docs/                     ← Technical specifications & architecture specs
+│
+├── 🤖 models/                   ← Local GGUF LLM models (Phi-3.5)
+│
+├── 🔧 scripts/                  ← Helper scripts (model downloader, LLM check)
+│
+├── 🧪 tests/                    ← Pytest automated unit & integration test suite
+│
+├── 📦 app/                      ← Mirrored application package
+│
+├── docker-compose.yml           ← Container orchestration (Postgres, Redis, Chroma, Infinity)
+├── pyproject.toml               ← Dependencies & project scripts
+├── .env.example                 ← Environment template
+└── README.md                    ← Root documentation
 ```
 
 ---
 
-## ⚡ Quick Start
+## ⚡ Quick Start Guide
 
-### 1. Prerequisites
-- Python 3.11+
-- [Ollama](https://ollama.com) (local LLM)
-- [Docker](https://docker.com) (for Qdrant, Redis, Infinity)
-- A [Neon](https://neon.tech) account (free Postgres)
-
-### 2. Install
+### 1. Clone & Install Dependencies
 ```bash
-git clone <repository-url>
-cd portfolio
+git clone https://github.com/dung1308/Shopping_web_Agentic_RAG.git
+cd Shopping_web_Agentic_RAG
+
+# Install editable package with dev dependencies
 pip install -e ".[dev]"
 playwright install chromium
 ```
 
-### 3. Configure
+### 2. Configure Environment
 ```bash
 cp .env.example .env
-# Fill in your Neon DATABASE_URL and any optional API keys
-# See guidelines/06_environment_setup.md for all variables
+# Edit .env with your Neon PostgreSQL DSN and optional LLM keys
+# Detailed reference: guidelines/06_environment_setup.md
 ```
 
-### 4. Start Services
+### 3. Vector Database Mode
+ChromaDB supports **Embedded Local Mode** (no Docker required for dev):
+- Default setting: `CHROMA_PATH=./chroma_data` automatically stores vectors locally in `./chroma_data`.
+
+Optionally, run full infrastructure with Docker Compose:
 ```bash
-# Qdrant + Redis + Infinity embedding server
 docker-compose up -d
-
-# Ollama local LLM
-ollama pull phi3.5
-ollama create phi3.5-local -f models/Modelfile
 ```
 
-### 5. Migrate Database
+### 4. Run API Server (Bridge)
 ```bash
-python -m alembic upgrade head
+# Start server via CLI
+mall-serve
+
+# Or via uvicorn:
+uvicorn bridge.main:app --host 0.0.0.0 --port 8000 --reload
+```
+Interactive REST OpenAPI documentation will be available at: `http://localhost:8000/docs`.
+
+### 5. Launch Desktop GUI (Optional)
+```bash
+python desktop_gui/main.py
 ```
 
-### 6. Run the Server
+### 6. Ingest Documents or Store Pages
 ```bash
-uvicorn bridge.main:app --host 127.0.0.1 --port 8000 --reload
-# → REST docs:    http://127.0.0.1:8000/docs
-# → GraphQL:      http://127.0.0.1:8000/graphql  (coming soon)
-```
-
-### 7. Ingest Your First Document
-```bash
-# Index a product catalog PDF
+# Ingest PDF catalog
 mall-ingest ingest-file \
     --file catalog.pdf \
-    --store-id "your-store-uuid" \
-    --store-name "Store Name" \
+    --store-id "store-uuid-123" \
+    --store-name "Zara" \
     --floor 2
 
-# Or capture a live product page
+# Scrape and ingest live store URL
 mall-ingest ingest-url \
-    --url "https://store.example.com/products" \
-    --store-id "your-store-uuid"
+    --url "https://zara.com.vn/collection" \
+    --store-id "store-uuid-123"
 ```
 
 ---
 
 ## 🛠️ Technology Stack
 
-### Core
-| Layer | Technology | Version | Role |
-|-------|-----------|---------|------|
-| Agent orchestration | [LangGraph](https://github.com/langchain-ai/langgraph) | 1.2 | State machine: Supervisor → Retriever → Responder |
-| API bridge | [FastAPI](https://fastapi.tiangolo.com) | 0.141 | Async REST + WebSocket + SSE server |
-| Data validation | [Pydantic AI](https://ai.pydantic.dev) | 2.21 | Strict product validation + AuditFlag generation |
-
-### Storage
 | Layer | Technology | Role |
-|-------|-----------|------|
-| Relational DB | [Neon PostgreSQL](https://neon.tech) | Products, stores, jobs, audit logs |
-| Vector DB | [Qdrant](https://qdrant.tech) | Hybrid dense+sparse search (2 collections) |
-| Cache | [Redis](https://redis.io) | Session memory + query result cache |
-
-### AI / ML
-| Layer | Technology | Role |
-|-------|-----------|------|
-| Embeddings | `BAAI/bge-m3` via [Infinity](https://github.com/michaelfeil/infinity) | 1024-dim multilingual vectors, CPU-safe |
-| Local LLM | Phi-3.5 via [Ollama](https://ollama.com) | Answer generation, runs offline, no VRAM |
-| Cloud LLMs | OpenAI / Anthropic / Gemini via [LiteLLM](https://litellm.ai) | Optional enrichment |
-
-### Document Ingestion
-| Layer | Technology | Role |
-|-------|-----------|------|
-| Extraction | [Docling](https://ds4sd.github.io/docling/) | PDF/DOCX/HTML/image/JSON → Markdown, CPU-safe |
-| JS Capture | [Playwright](https://playwright.dev/python/) | Renders JS pages, intercepts XHR responses |
+|---|---|---|
+| **Agent Orchestration** | [LangGraph](https://python.langchain.com/docs/langgraph/) | Supervisor routing state machine → Retriever → Responder |
+| **API Server** | [FastAPI](https://fastapi.tiangolo.com/) | Async REST API, WebSockets streaming, SSE events |
+| **Vector Database** | [ChromaDB](https://www.trychroma.com/) | Dense vector similarity search & metadata filtering (`./chroma_data`) |
+| **Relational Database** | [Neon PostgreSQL](https://neon.tech/) | Serverless Postgres for products, stores, audit flags |
+| **Caching** | [Redis](https://redis.io/) / Fallback | In-memory session store & cache |
+| **Validation** | [Pydantic AI](https://ai.pydantic.dev/) | Strict product validation & compliance rule enforcement |
+| **Extraction** | [Docling](https://ds4sd.github.io/docling/) / [Playwright](https://playwright.dev/) | PDF/DOCX/HTML extraction & headless page scraping |
+| **Embeddings** | `BAAI/bge-m3` via [Infinity](https://github.com/michaelfeil/infinity) | Multilingual 1024-dim vector embeddings |
 
 ---
 
-## 🧪 Tests
+## 🧪 Testing
 
+Run the automated test suite with `pytest`:
 ```bash
 python -m pytest tests/ -v
-# 33 passed in 0.52s
 ```
 
 ---
 
 ## 📄 License
-
 MIT License — see LICENSE for details.
