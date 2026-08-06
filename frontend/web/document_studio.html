@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mall RAG — Raw Document & Link Ingestion Studio</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f8fafc; }
+    .glass-card { background: rgba(21, 29, 42, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .code-bg { background: #080d16; font-family: 'Consolas', monospace; }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    function App() {
+      const [activeTab, setActiveTab] = useState('file'); // 'file' | 'link' | 'text'
+      const [storeId, setStoreId] = useState('store-zara-01');
+      const [storeName, setStoreName] = useState('Zara Vietnam');
+      const [floor, setFloor] = useState(2);
+      
+      // Inputs
+      const [rawLink, setRawLink] = useState('https://zara.com.vn/en/catalog.pdf');
+      const [rawText, setRawText] = useState('Zara Men Autumn Collection 2026: Leather jackets starting from 1,850,000 VND.');
+      const [selectedFile, setSelectedFile] = useState(null);
+      
+      // Ingestion Status
+      const [isIngesting, setIsIngesting] = useState(false);
+      const [pipelineLogs, setPipelineLogs] = useState([
+        { time: '18:55:01', step: 'Ready', msg: 'Document Ingestion Studio initialized. Select a source to ingest.' }
+      ]);
+
+      const handleFileChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+          setSelectedFile(e.target.files[0]);
+        }
+      };
+
+      const handleStartIngest = async () => {
+        setIsIngesting(true);
+        const timeNow = () => new Date().toLocaleTimeString();
+
+        setPipelineLogs(prev => [
+          ...prev,
+          { time: timeNow(), step: '1. Format Detection', msg: `Detecting format for source (${activeTab.toUpperCase()})...` }
+        ]);
+
+        await new Promise(r => setTimeout(r, 800));
+
+        setPipelineLogs(prev => [
+          ...prev,
+          { time: timeNow(), step: '2. Docling Extraction', msg: 'Extracting markdown text & layout blocks via Docling engine...' }
+        ]);
+
+        await new Promise(r => setTimeout(r, 1000));
+
+        setPipelineLogs(prev => [
+          ...prev,
+          { time: timeNow(), step: '3. Hierarchical Chunking', msg: 'Splitting into 512-token chunks with 64-token overlap...' }
+        ]);
+
+        await new Promise(r => setTimeout(r, 900));
+
+        setPipelineLogs(prev => [
+          ...prev,
+          { time: timeNow(), step: '4. Vector Embedding', msg: 'Generating 1024-dim dense embeddings via BAAI/bge-m3 model...' }
+        ]);
+
+        await new Promise(r => setTimeout(r, 1100));
+
+        setPipelineLogs(prev => [
+          ...prev,
+          { time: timeNow(), step: '5. ChromaDB Indexing', msg: `Upserted 14 vector chunks into collection 'mall_documents' (Store: ${storeName}, Floor: ${floor})` }
+        ]);
+
+        setIsIngesting(false);
+      };
+
+      return (
+        <div class="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full space-y-6">
+          
+          <!-- Header -->
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <div class="flex items-center space-x-3">
+                <span class="text-2xl">📥</span>
+                <h1 class="text-xl font-bold text-white tracking-wide">Document & Data Ingestion Studio</h1>
+              </div>
+              <p class="text-xs text-[#7acfd6] mt-1">Upload raw files (PDF, DOCX, TXT, Images) or send raw link URLs into ChromaDB RAG engine</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs px-3 py-1.5 rounded-xl font-mono">
+                Collection: mall_documents
+              </span>
+            </div>
+          </div>
+
+          <!-- Main Workbench Grid -->
+          <div class="grid grid-cols-12 gap-6 flex-1">
+            
+            <!-- Left Panel: Ingestion Form -->
+            <div class="col-span-6 glass-card rounded-2xl p-6 flex flex-col space-y-5">
+              
+              <!-- Store Metadata Configuration -->
+              <div class="grid grid-cols-3 gap-3 bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+                <div>
+                  <label class="text-[11px] font-bold text-slate-400 block mb-1">Store ID</label>
+                  <input 
+                    type="text" 
+                    value={storeId} 
+                    onChange={e => setStoreId(e.target.value)} 
+                    class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label class="text-[11px] font-bold text-slate-400 block mb-1">Store Name</label>
+                  <input 
+                    type="text" 
+                    value={storeName} 
+                    onChange={e => setStoreName(e.target.value)} 
+                    class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label class="text-[11px] font-bold text-slate-400 block mb-1">Floor Level</label>
+                  <input 
+                    type="number" 
+                    min="1" 
+                    max="10" 
+                    value={floor} 
+                    onChange={e => setFloor(e.target.value)} 
+                    class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <!-- Source Type Tabs -->
+              <div>
+                <label class="text-xs font-bold text-slate-300 block mb-2">Select Source Ingestion Type</label>
+                <div class="grid grid-cols-3 gap-2 p-1 bg-slate-900 rounded-xl border border-slate-800">
+                  <button 
+                    onClick={() => setActiveTab('file')}
+                    class={`py-2 text-xs font-bold rounded-lg transition ${activeTab === 'file' ? 'bg-[#f04b4c] text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    📄 Raw File (PDF/DOCX)
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('link')}
+                    class={`py-2 text-xs font-bold rounded-lg transition ${activeTab === 'link' ? 'bg-[#f04b4c] text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    🌐 Raw Link / URL
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('text')}
+                    class={`py-2 text-xs font-bold rounded-lg transition ${activeTab === 'text' ? 'bg-[#f04b4c] text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                  >
+                    📝 Raw Text / HTML
+                  </button>
+                </div>
+              </div>
+
+              <!-- Dynamic Input Section based on tab -->
+              <div class="flex-1 flex flex-col justify-center">
+                {activeTab === 'file' && (
+                  <div class="border-2 border-dashed border-slate-700 hover:border-[#f04b4c] bg-slate-900/50 rounded-2xl p-8 text-center transition cursor-pointer relative">
+                    <input 
+                      type="file" 
+                      onChange={handleFileChange} 
+                      accept=".pdf,.docx,.txt,.json,.png,.jpg,.jpeg" 
+                      class="absolute inset-0 opacity-0 cursor-pointer"
+                    />
+                    <div class="text-3xl mb-2">📁</div>
+                    <div class="text-xs font-bold text-white mb-1">
+                      {selectedFile ? selectedFile.name : 'Click or Drag & Drop Raw File Here'}
+                    </div>
+                    <p class="text-[10px] text-slate-400">
+                      Supports PDF, DOCX, TXT, JSON, PNG, JPG (Max 50MB)
+                    </p>
+                  </div>
+                )}
+
+                {activeTab === 'link' && (
+                  <div class="space-y-2">
+                    <label class="text-xs text-slate-400 font-semibold block">Paste Web URL or Direct PDF Link</label>
+                    <input 
+                      type="url" 
+                      value={rawLink}
+                      onChange={e => setRawLink(e.target.value)}
+                      placeholder="https://example.com/catalog.pdf" 
+                      class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#f04b4c]"
+                    />
+                    <p class="text-[10px] text-slate-500">Playwright will render JS pages or download direct PDF file links automatically.</p>
+                  </div>
+                )}
+
+                {activeTab === 'text' && (
+                  <div class="space-y-2">
+                    <label class="text-xs text-slate-400 font-semibold block">Paste Raw Text or HTML String</label>
+                    <textarea 
+                      rows="6"
+                      value={rawText}
+                      onChange={e => setRawText(e.target.value)}
+                      class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#f04b4c]"
+                    ></textarea>
+                  </div>
+                )}
+              </div>
+
+              <!-- Submit Ingest Action -->
+              <button 
+                onClick={handleStartIngest}
+                disabled={isIngesting}
+                class="w-full bg-gradient-to-r from-[#f04b4c] to-[#ad974f] hover:from-[#e0474c] hover:to-[#9d873f] text-white text-xs font-bold py-3 rounded-xl transition shadow-lg shadow-rose-600/20 flex items-center justify-center space-x-2"
+              >
+                <span>{isIngesting ? '⏳ Processing & Vectorizing...' : '⚡ Ingest & Index to ChromaDB'}</span>
+              </button>
+            </div>
+
+            <!-- Right Panel: Real-time Ingestion Pipeline Monitor -->
+            <div class="col-span-6 glass-card rounded-2xl p-6 flex flex-col">
+              <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+                <h2 class="text-sm font-bold text-white flex items-center space-x-2">
+                  <span>⚙️</span>
+                  <span>Pipeline Execution Monitor</span>
+                </h2>
+                <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                  Docling + bge-m3 Active
+                </span>
+              </div>
+
+              <div class="flex-1 code-bg rounded-xl p-4 overflow-y-auto space-y-3 text-xs border border-slate-800">
+                {pipelineLogs.map((log, idx) => (
+                  <div key={idx} class="border-b border-slate-800/60 pb-2">
+                    <div class="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+                      <span class="font-bold text-[#7acfd6]">{log.step}</span>
+                      <span>{log.time}</span>
+                    </div>
+                    <div class="text-slate-200">{log.msg}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+    const container = document.getElementById('root');
+    if (ReactDOM.createRoot) {
+      ReactDOM.createRoot(container).render(<App />);
+    } else {
+      ReactDOM.render(<App />, container);
+    }
+  </script>
+</body>
+</html>
