@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VinMall Scraper — Playwright Pipeline Manager</title>
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -25,8 +25,8 @@
       { time: '22:23:01', level: 'INFO', msg: '[ScraperEngine] Initialized Playwright Chromium Headless Context pool (concurrency=5)' },
       { time: '22:23:03', level: 'INFO', msg: '[RobotsValidator] Fetched https://zara.com/robots.txt -> Allowed crawl depth max 3' },
       { time: '22:23:05', level: 'WARN', msg: '[AuditFlag] Price validation warning on item #8911 (Zara): 22,500,000 VND exceeds 15M cap' },
-      { time: '22:23:07', level: 'INFO', msg: '[QdrantIndexer] Generating 1024-dim dense vector embedding via bge-m3 model...' },
-      { time: '22:23:09', level: 'SUCCESS', msg: '[QdrantIndexer] Upserted 128 points into Qdrant collection `mall_products`' },
+      { time: '22:23:07', level: 'INFO', msg: '[ChromaIndexer] Generating 1024-dim dense vector embedding via bge-m3 model...' },
+      { time: '22:23:09', level: 'SUCCESS', msg: '[ChromaIndexer] Upserted 128 points into Chroma collection `mall_products`' },
       { time: '22:23:11', level: 'INFO', msg: '[RedisCache] Invalidation signal published for channel `store_catalogs`' },
     ];
 
@@ -47,7 +47,7 @@
             `[Playwright] Extracted 24 product DOM elements from target URL`,
             `[Validator] Checked Pydantic schema for product category 'Footwear'`,
             `[AuditFlag] Price bound check passed (1,290,000 VND < 25M cap)`,
-            `[QdrantIndexer] Embedding batch synced to Qdrant vector database`
+            `[ChromaIndexer] Embedding batch synced to Chroma vector database`
           ];
           const m = sampleMsgs[Math.floor(Math.random() * sampleMsgs.length)];
 
@@ -68,11 +68,11 @@
                 <span className="text-2xl">🕷️</span>
                 <h1 className="text-xl font-bold text-white tracking-wide">Playwright Scraper Workflow Engine</h1>
               </div>
-              <p className="text-xs text-[#7acfd6] mt-1">Hook Agency 2026 Theme • Automated crawler, Robots.txt parser & validation pipeline</p>
+              <p className="text-xs text-[#7acfd6] mt-1">Automated crawler, Robots.txt parser & validation pipeline</p>
             </div>
 
             <div className="flex items-center space-x-3">
-              <span className={`w-3 h-3 rounded-full ${isRunning ? 'bg-emerald-400 animate-ping' : 'bg-[#f04b4c]'}`}></span>
+              <span class={`w-3 h-3 rounded-full ${isRunning ? 'bg-emerald-400 animate-ping' : 'bg-[#f04b4c]'}`}></span>
               <span className="text-xs font-semibold text-slate-300">{isRunning ? 'Crawler Active' : 'Crawler Stopped'}</span>
               <button
                 onClick={() => setIsRunning(!isRunning)}
@@ -122,16 +122,19 @@
                 </div>
                 <div className="flex items-center space-x-2 text-xs text-slate-300">
                   <input type="checkbox" defaultChecked className="rounded accent-[#f04b4c]" />
-                  <span>Flag expired deals (>365 days)</span>
+                  <span>Flag expired deals (&gt;365 days)</span>
                 </div>
                 <div className="flex items-center space-x-2 text-xs text-slate-300">
                   <input type="checkbox" defaultChecked className="rounded accent-[#f04b4c]" />
-                  <span>Auto-upsert vectors to Qdrant</span>
+                  <span>Auto-upsert vectors to ChromaDB</span>
                 </div>
               </div>
 
               <div className="mt-auto pt-4 border-t border-slate-800 flex space-x-3">
-                <button className="flex-1 bg-[#f04b4c] hover:bg-[#e0474c] text-white text-xs font-semibold py-2.5 rounded-xl transition">
+                <button 
+                  onClick={() => alert("Scrape job triggered successfully!")}
+                  className="flex-1 bg-[#f04b4c] hover:bg-[#e0474c] text-white text-xs font-semibold py-2.5 rounded-xl transition shadow-lg"
+                >
                   🚀 Launch Job
                 </button>
               </div>
@@ -168,7 +171,12 @@
       );
     }
 
-    ReactDOM.render(<App />, document.getElementById('root'));
+    const container = document.getElementById('root');
+    if (ReactDOM.createRoot) {
+      ReactDOM.createRoot(container).render(<App />);
+    } else {
+      ReactDOM.render(<App />, container);
+    }
   </script>
 </body>
 </html>
