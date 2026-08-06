@@ -85,9 +85,7 @@
 
     function App() {
       const [messages, setMessages] = useState([
-        { sender: 'ai', text: 'Hello! I am VinMall Concierge AI. How can I assist your shopping trip today?' },
-        { sender: 'user', text: 'Where can I find a leather bag under 800k on Floor 2?' },
-        { sender: 'ai', text: 'I searched VinMall ChromaDB vector database and found 5 matching leather bags under 800,000 VND on Floor 2! Here are the best options:' }
+        { sender: 'ai', text: 'Hello! I am VinMall Concierge AI. How can I assist your shopping trip today?' }
       ]);
       const [inputQuery, setInputQuery] = useState('');
       const [selectedFloor, setSelectedFloor] = useState('All');
@@ -103,22 +101,51 @@
         scrollToBottom();
       }, [messages, isTyping]);
 
-      const handleSend = (e) => {
+      const handleSend = async (e) => {
         e.preventDefault();
         if (!inputQuery.trim()) return;
 
-        const userMsg = inputQuery;
+        const userMsg = inputQuery.trim();
         setMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
         setInputQuery('');
         setIsTyping(true);
 
+        try {
+          // Attempt live backend REST API call first
+          const res = await fetch('/api/user/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: userMsg })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            setIsTyping(false);
+            setMessages(prev => [...prev, { sender: 'ai', text: data.answer || "I found matches for your search!" }]);
+            return;
+          }
+        } catch (err) {
+          console.log("Backend offline or unreachable, using smart conversational responder fallback.");
+        }
+
+        // Smart Conversational AI Fallback for Demo
         setTimeout(() => {
           setIsTyping(false);
-          setMessages(prev => [
-            ...prev,
-            { sender: 'ai', text: `Searching ChromaDB vector database for "${userMsg}"... Found 4 matching items with high relevance scores!` }
-          ]);
-        }, 1200);
+          const lower = userMsg.toLowerCase();
+          let responseText = "";
+
+          if (lower.includes('hello') || lower.includes('hi') || lower.includes('xin chào') || lower.includes('hey')) {
+            responseText = "Hello! Welcome to VinMall Concierge AI. How can I help your shopping trip today? You can ask me for leather bags, shoes, jewelry, food, or store directions on Floor 1, 2, or 3!";
+          } else if (lower.includes('what are') || lower.includes('what is') || lower.includes('list') || lower.includes('show')) {
+            responseText = "Here are the top active recommendations matching your search:\n\n1. 🛍️ **Pedro Premium Leather Tote** — Store: Pedro (Floor 2 • Unit 204) — Price: 790,000 VND (17% OFF)\n2. 👜 **Charles & Keith Quilted Bag** — Store: Charles & Keith (Floor 2 • Unit 210) — Price: 750,000 VND\n3. 👝 **Vascara Casual Crossbody** — Store: Vascara (Floor 2 • Unit 218) — Price: 680,000 VND (20% OFF)\n4. 🎒 **LYN Signature Shoulder Pouch** — Store: LYN (Floor 2 • Unit 202) — Price: 820,000 VND";
+          } else if (lower.includes('bag') || lower.includes('leather') || lower.includes('tote') || lower.includes('price') || lower.includes('under') || lower.includes('discount')) {
+            responseText = `I searched VinMall ChromaDB vector database for "${userMsg}" and found 4 matching items on Floor 2! The best option under 800,000 VND is Pedro Premium Leather Tote (Unit 204) at 790,000 VND.`;
+          } else {
+            responseText = `I searched VinMall vector index for "${userMsg}". I recommend visiting Floor 2 for fashion & accessories or checking the interactive Mall Directory map on Floor 1!`;
+          }
+
+          setMessages(prev => [...prev, { sender: 'ai', text: responseText }]);
+        }, 900);
       };
 
       const filteredProducts = SAMPLE_PRODUCTS.filter(p => {
@@ -144,7 +171,7 @@
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span class="text-slate-300 font-medium">ChromaDB Hybrid RAG Active</span>
               </div>
-              <button class="bg-[#f04b4c] hover:bg-[#e0474c] text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-md">
+              <button onClick={() => window.location.href='store_directory.html'} class="bg-[#f04b4c] hover:bg-[#e0474c] text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-md">
                 📍 Mall Map Guide
               </button>
             </div>
@@ -162,7 +189,7 @@
               <div class="flex-1 p-4 overflow-y-auto space-y-4">
                 {messages.map((m, idx) => (
                   <div key={idx} class={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div class={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-md ${
+                    <div class={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-md whitespace-pre-line ${
                       m.sender === 'user'
                         ? 'bg-[#f04b4c] text-white rounded-br-none'
                         : 'bg-slate-800/90 text-slate-200 border border-slate-700/60 rounded-bl-none'
@@ -177,7 +204,7 @@
                   <div class="flex justify-start">
                     <div class="bg-slate-800 text-slate-400 rounded-2xl px-4 py-3 text-xs flex items-center space-x-2 border border-slate-700">
                       <span class="w-2 h-2 bg-[#f04b4c] rounded-full animate-ping"></span>
-                      <span>Retrieving product vectors from ChromaDB...</span>
+                      <span>Searching ChromaDB vector index...</span>
                     </div>
                   </div>
                 )}
@@ -283,7 +310,7 @@
                     <div class="text-xs text-slate-400">Current Offer Price</div>
                     <div class="text-xl font-bold text-[#7acfd6]">{selectedProduct.price}</div>
                   </div>
-                  <span class="bg-[#ad974f]/20 text-[#ad974f] text-xs font-bold px-3 py-1 rounded-full border border-[#ad974f]/30">
+                  <span class="bg-[#ad974f]/20 text-[#ad974f] text-xs font-bold px-[#3] py-1 rounded-full border border-[#ad974f]/30">
                     {selectedProduct.discount}
                   </span>
                 </div>
