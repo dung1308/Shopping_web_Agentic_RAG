@@ -1,4 +1,4 @@
-﻿"""
+"""
 app/db/session.py — Async SQLAlchemy session factory + Alembic support.
 """
 
@@ -44,11 +44,11 @@ def get_session_factory() -> async_sessionmaker[AsyncSession]:
 
 
 async def init_db() -> None:
-    """Called on app startup — verifies DB connectivity."""
+    """Called on app startup — verifies DB connectivity and creates missing tables."""
+    from backend.db.models import Base
     engine = _get_engine()
     async with engine.begin() as conn:
-        # Just ping; Alembic handles DDL
-        await conn.run_sync(lambda c: None)
+        await conn.run_sync(Base.metadata.create_all)
 
 
 async def get_db() -> AsyncSession:

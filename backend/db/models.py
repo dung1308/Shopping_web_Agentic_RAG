@@ -20,6 +20,14 @@ import enum
 
 # ── Enums ─────────────────────────────────────────────────────────────────
 
+class UserRole(str, enum.Enum):
+    admin = "admin"
+    store_manager = "store_manager"
+    data_auditor = "data_auditor"
+    shopper = "shopper"
+    guest = "guest"
+
+
 class StoreCategory(str, enum.Enum):
     fashion = "fashion"
     food = "food"
@@ -61,6 +69,21 @@ class Base(DeclarativeBase):
 
 
 # ── Tables ────────────────────────────────────────────────────────────────
+
+class User(Base):
+    __tablename__ = "users"
+
+    user_id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    email = Column(String(255), nullable=False, unique=True, index=True)
+    password_hash = Column(String(255), nullable=False)
+    full_name = Column(String(255), nullable=False)
+    role = Column(Enum(UserRole), nullable=False, default=UserRole.shopper, index=True)
+    store_id = Column(PG_UUID(as_uuid=True), ForeignKey("stores.store_id"), nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    last_login_at = Column(DateTime(timezone=True), nullable=True)
+
+    store = relationship("Store", foreign_keys=[store_id])
 
 class Store(Base):
     __tablename__ = "stores"

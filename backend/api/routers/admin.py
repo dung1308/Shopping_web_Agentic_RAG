@@ -15,19 +15,12 @@ router = APIRouter()
 
 
 import logging
+from backend.auth.rbac import require_roles, get_current_user
 
 logger = logging.getLogger("mall_rag.admin")
 
-
-# ── Stub auth dependency ──────────────────────────────────────────────────
-async def require_admin() -> dict:
-    """
-    STUB AUTHENTICATION DEPENDENCY — DO NOT DEPLOY TO PRODUCTION!
-    Returns a dummy admin user without JWT validation.
-    Must be replaced with real JWT verification in Phase 5.
-    """
-    logger.warning("SECURITY WARNING: require_admin() stub used without JWT verification!")
-    return {"admin_id": "dev-admin"}
+# Real JWT Role-Based Access Control Dependency
+require_admin = require_roles("admin", "data_auditor", "store_manager")
 
 
 # ── Request / Response Schemas ─────────────────────────────────────────────

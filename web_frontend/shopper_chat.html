@@ -90,6 +90,7 @@
       const [inputQuery, setInputQuery] = useState('');
       const [selectedFloor, setSelectedFloor] = useState('All');
       const [selectedProduct, setSelectedProduct] = useState(null);
+      const [selectedModel, setSelectedModel] = useState('gemini');
       const [isTyping, setIsTyping] = useState(false);
       const chatEndRef = useRef(null);
 
@@ -134,7 +135,9 @@
           const lower = userMsg.toLowerCase();
           let responseText = "";
 
-          if (lower.includes('hello') || lower.includes('hi') || lower.includes('xin chào') || lower.includes('hey')) {
+          if (lower.includes('buy') || lower.includes('order') || lower.includes('checkout') || lower.includes('ship') || lower.includes('address') || lower.includes('pay') || lower.includes('credit card') || lower.includes('delivery')) {
+            responseText = "🔒 **Action Restricted**: VinMall AI operates strictly in **Anonymous Catalog Browsing Mode**.\n\n• **Direct Online Purchase & Address Entry**: Restricted for anonymous browsing.\n\n🏷️ **Product & Price Discovery**:\n1. 🛍️ **Pedro Premium Leather Tote** — Price: **790,000 VND** (17% OFF) | Store: Pedro (Floor 2 • Unit 204)\n2. 👜 **Charles & Keith Quilted Bag** — Price: **750,000 VND** | Store: Charles & Keith (Floor 2 • Unit 210)\n\n📍 **Store Location & Navigation Guide**:\nTo explore these items or complete your purchase in person, please navigate to **Floor 2 • Unit 204 (Pedro)** or **Unit 210 (Charles & Keith)**. You can click **🏬 Mall Map** above to view interactive store directions!";
+          } else if (lower.includes('hello') || lower.includes('hi') || lower.includes('xin chào') || lower.includes('hey')) {
             responseText = "Hello! Welcome to VinMall Concierge AI. How can I help your shopping trip today? You can ask me for leather bags, shoes, jewelry, food, or store directions on Floor 1, 2, or 3!";
           } else if (lower.includes('what are') || lower.includes('what is') || lower.includes('list') || lower.includes('show')) {
             responseText = "Here are the top active recommendations matching your search:\n\n1. 🛍️ **Pedro Premium Leather Tote** — Store: Pedro (Floor 2 • Unit 204) — Price: 790,000 VND (17% OFF)\n2. 👜 **Charles & Keith Quilted Bag** — Store: Charles & Keith (Floor 2 • Unit 210) — Price: 750,000 VND\n3. 👝 **Vascara Casual Crossbody** — Store: Vascara (Floor 2 • Unit 218) — Price: 680,000 VND (20% OFF)\n4. 🎒 **LYN Signature Shoulder Pouch** — Store: LYN (Floor 2 • Unit 202) — Price: 820,000 VND";
@@ -155,35 +158,50 @@
 
       return (
         <div class="flex-1 flex flex-col h-screen overflow-hidden">
-          <header class="glass-card px-6 py-4 flex items-center justify-between border-b border-slate-800">
+          <header class="glass-card px-6 py-3 flex flex-wrap items-center justify-between border-b border-slate-800 gap-3">
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl bg-[#f04b4c] flex items-center justify-center text-xl shadow-lg shadow-rose-600/30">
-                ✨
-              </div>
-              <div>
-                <h1 class="text-lg font-bold text-white tracking-wide">VinMall AI Concierge</h1>
-                <p class="text-xs text-[#7acfd6]">Web Frontend Client • Dual-View Shopping Assistant</p>
+              <a href="index.html" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-1.5 rounded-xl font-bold transition">
+                <span>🏠 Main Dashboard</span>
+              </a>
+              <span class="text-slate-700">|</span>
+              <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg bg-[#f04b4c] flex items-center justify-center text-base shadow-md shadow-rose-600/30">
+                  💬
+                </div>
+                <div>
+                  <h1 class="text-sm font-bold text-white tracking-wide">Shopper AI Assistant</h1>
+                  <p class="text-[10px] text-[#7acfd6]">Conversational RAG Discovery</p>
+                </div>
               </div>
             </div>
 
-            <div class="flex items-center space-x-4">
-              <div class="flex items-center space-x-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-xs">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-slate-300 font-medium">ChromaDB Hybrid RAG Active</span>
-              </div>
-              <button onClick={() => window.location.href='store_directory.html'} class="bg-[#f04b4c] hover:bg-[#e0474c] text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-md">
-                📍 Mall Map Guide
-              </button>
+            <div class="flex items-center space-x-1.5 overflow-x-auto text-xs">
+              <a href="shopper_chat.html" class="bg-[#f04b4c] text-white px-3 py-1.5 rounded-lg font-bold shadow-sm">💬 Chat</a>
+              <a href="store_directory.html" class="hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-transparent hover:border-slate-700 transition">🏬 Mall Map</a>
+              <a href="admin_governance.html" class="hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-transparent hover:border-slate-700 transition">📊 Governance</a>
+              <a href="document_studio.html" class="hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-transparent hover:border-slate-700 transition">📄 Ingest</a>
+              <a href="connection_status.html" class="hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-transparent hover:border-slate-700 transition">⚡ Setup</a>
+              <a href="auth.html" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20 px-3 py-1.5 rounded-lg font-semibold transition">🔑 Auth</a>
             </div>
           </header>
 
           <div class="flex-1 flex overflow-hidden">
             <div class="w-2/5 border-r border-slate-800 flex flex-col glass-card">
-              <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
-                <span class="text-sm font-semibold text-slate-200">💬 Conversational AI Stream</span>
-                <span class="text-xs text-[#7acfd6] bg-slate-900 px-2.5 py-1 rounded-md border border-slate-800">
-                  Llama 3.1 70B
-                </span>
+              <div class="p-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
+                <span class="text-xs font-semibold text-slate-200">💬 AI Conversational Stream</span>
+                <div class="flex items-center space-x-1.5">
+                  <span class="text-[10px] text-slate-400 font-medium">Model:</span>
+                  <select 
+                    value={selectedModel} 
+                    onChange={(e) => setSelectedModel(e.target.value)}
+                    class="bg-slate-950 text-xs text-[#7acfd6] font-semibold border border-slate-700 rounded-lg px-2 py-1 focus:outline-none focus:border-[#f04b4c]"
+                  >
+                    <option value="gemini">⚡ Google Gemini (1.5 Flash)</option>
+                    <option value="openai">🧠 OpenAI (GPT-4o-mini)</option>
+                    <option value="anthropic">🔮 Anthropic (Claude 3.5)</option>
+                    <option value="local">🤖 Local Ollama (Phi-3.5)</option>
+                  </select>
+                </div>
               </div>
 
               <div class="flex-1 p-4 overflow-y-auto space-y-4">

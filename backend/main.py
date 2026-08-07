@@ -13,8 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from backend.config import get_settings
 from backend.db.session import init_db
 from backend.cache.redis_client import init_redis, close_redis
-from backend.vector.chroma_client import init_chroma
-from backend.api.routers import user, admin, ingest
+from backend.api.routers import user, admin, ingest, diagnostics, auth
 from backend.api.websocket import chat_ws_router
 
 import logging
@@ -81,9 +80,11 @@ def create_app() -> FastAPI:
     )
 
     # ── Routers ───────────────────────────────────────────────────────────
+    app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
     app.include_router(user.router, prefix="/api/user", tags=["User"])
     app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
     app.include_router(ingest.router, prefix="/api/ingest", tags=["Ingest"])
+    app.include_router(diagnostics.router, prefix="/api/diagnostics", tags=["Diagnostics"])
     app.include_router(chat_ws_router, tags=["WebSocket"])
 
     # ── Health ────────────────────────────────────────────────────────────

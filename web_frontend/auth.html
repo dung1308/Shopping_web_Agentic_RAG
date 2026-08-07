@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login & Signup Authorization — Mall Agentic RAG</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --card-bg: rgba(22, 31, 49, 0.8);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --rose: #f04b4c;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --purple: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 10% 10%, rgba(240, 75, 76, 0.12) 0px, transparent 50%),
+        radial-gradient(at 90% 10%, rgba(139, 92, 246, 0.12) 0px, transparent 50%),
+        radial-gradient(at 50% 90%, rgba(59, 130, 246, 0.1) 0px, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .brand-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .brand-logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--rose), var(--purple));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+      box-shadow: 0 10px 25px rgba(240, 75, 76, 0.3);
+    }
+
+    .brand-header h1 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Demo Account Quick Switcher */
+    .demo-section {
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .demo-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .demo-btn {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .demo-btn:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .demo-role-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .demo-email {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: 'Fira Code', monospace;
+      margin-top: 2px;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.92rem;
+      transition: border-color 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
+      margin-top: 6px;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+
+    /* Active User Badge Card */
+    .session-card {
+      margin-top: 24px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: none;
+    }
+
+    .session-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .user-name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #fff;
+    }
+
+    .role-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .role-admin { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .role-store_manager { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .role-data_auditor { background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4); }
+    .role-shopper { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+
+    .token-preview {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      background: #050811;
+      padding: 10px;
+      border-radius: 6px;
+      word-break: break-all;
+      margin-top: 10px;
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Universal Navigation Navbar -->
+  <nav style="background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <a href="index.html" style="display: flex; align-items: center; gap: 6px; background: rgba(30, 41, 59, 0.9); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.12); padding: 6px 14px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: 0.2s;">
+        🏠 Main Dashboard
+      </a>
+      <span style="color: #475569;">|</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 1.2rem;">🔑</span>
+        <div>
+          <div style="font-size: 0.9rem; font-weight: 700; color: #fff;">Identity & RBAC Auth</div>
+          <div style="font-size: 0.7rem; color: #7acfd6;">Admin, Store Manager & Shopper Roles</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 0.8rem;">
+      <a href="shopper_chat.html" style="color: #cbd5e1; text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">💬 Chat</a>
+      <a href="store_directory.html" style="color: #cbd5e1; text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">🏬 Mall Map</a>
+      <a href="admin_governance.html" style="color: #cbd5e1; text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">📊 Governance</a>
+      <a href="document_studio.html" style="color: #cbd5e1; text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">📄 Ingest</a>
+      <a href="connection_status.html" style="color: #cbd5e1; text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">⚡ Setup</a>
+      <a href="auth.html" style="background: #f04b4c; color: #fff; text-decoration: none; padding: 6px 12px; border-radius: 8px; font-weight: 700; box-shadow: 0 2px 8px rgba(240,75,76,0.3);">🔑 Auth</a>
+    </div>
+  </nav>
+
+  <div class="auth-container">
+    <div class="brand-header">
+      <div class="brand-logo">🔐</div>
+      <h1>Authorization & Identity Portal</h1>
+      <p>Multi-Role Authentication: Admin, Store Manager, Auditor, & Shopper</p>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" id="tabLogin" onclick="switchForm('login')">🔑 Log In</button>
+        <button class="tab-btn" id="tabSignup" onclick="switchForm('signup')">📝 Sign Up</button>
+      </div>
+
+      <!-- Quick Demo Account Switcher -->
+      <div class="demo-section">
+        <div class="demo-title">
+          <span>⚡ 1-Click Quick Demo Login</span>
+          <span style="font-size: 0.7rem; color: #38bdf8;">Select a Role</span>
+        </div>
+        <div class="demo-grid">
+          <div class="demo-btn" onclick="quickFillDemo('admin@mallrag.com', 'admin123')">
+            <div class="demo-role-name">👑 System Admin</div>
+            <div class="demo-email">admin@mallrag.com</div>
+          </div>
+          <div class="demo-btn" onclick="quickFillDemo('manager@nike.com', 'manager123')">
+            <div class="demo-role-name">🏪 Store Manager</div>
+            <div class="demo-email">manager@nike.com</div>
+          </div>
+          <div class="demo-btn" onclick="quickFillDemo('auditor@mallrag.com', 'auditor123')">
+            <div class="demo-role-name">🔍 Data Auditor</div>
+            <div class="demo-email">auditor@mallrag.com</div>
+          </div>
+          <div class="demo-btn" onclick="quickFillDemo('shopper@gmail.com', 'shopper123')">
+            <div class="demo-role-name">🛒 Shopper / Guest</div>
+            <div class="demo-email">shopper@gmail.com</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-error" id="alertError"></div>
+      <div class="alert alert-success" id="alertSuccess"></div>
+
+      <!-- LOGIN FORM -->
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" placeholder="admin@mallrag.com" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-submit">Sign In to Dashboard ➔</button>
+      </form>
+
+      <!-- SIGNUP FORM -->
+      <form id="signupForm" style="display: none;" onsubmit="handleSignup(event)">
+        <div class="form-group">
+          <label for="signupName">Full Name</label>
+          <input type="text" id="signupName" placeholder="Alex Morgan" required>
+        </div>
+        <div class="form-group">
+          <label for="signupEmail">Email Address</label>
+          <input type="email" id="signupEmail" placeholder="alex@example.com" required>
+        </div>
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" placeholder="Minimum 6 characters" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label for="signupRole">Select Role:</label>
+          <select id="signupRole">
+            <option value="shopper">🛒 Shopper / Guest (Default)</option>
+            <option value="store_manager">🏪 Store Manager (Merchant)</option>
+            <option value="data_auditor">🔍 Data Auditor (Governance)</option>
+            <option value="admin">👑 System Admin (Full Rights)</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-submit">Create Account & Register ➔</button>
+      </form>
+    </div>
+
+    <!-- ACTIVE SESSION DISPLAY -->
+    <div class="session-card" id="sessionCard">
+      <div class="session-header">
+        <div>
+          <div class="user-name" id="sessionUserName">User Name</div>
+          <div style="font-size: 0.8rem; color: #94a3b8;" id="sessionUserEmail">email@example.com</div>
+        </div>
+        <span class="role-badge" id="sessionRoleBadge">ROLE</span>
+      </div>
+      <div style="font-size: 0.78rem; color: #64748b; margin-top: 8px;">Active JWT Authorization Token:</div>
+      <div class="token-preview" id="sessionTokenPreview">eyJhbGciOi...</div>
+      <button class="btn-logout" onclick="handleLogout()">🚪 Log Out Session</button>
+    </div>
+  </div>
+
+  <script>
+    const API_AUTH = '/api/auth';
+
+    function switchForm(mode) {
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const tabLogin = document.getElementById('tabLogin');
+      const tabSignup = document.getElementById('tabSignup');
+
+      hideAlerts();
+      if (mode === 'login') {
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+        tabLogin.classList.add('active');
+        tabSignup.classList.remove('active');
+      } else {
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'block';
+        tabSignup.classList.add('active');
+        tabLogin.classList.remove('active');
+      }
+    }
+
+    function quickFillDemo(email, password) {
+      switchForm('login');
+      document.getElementById('loginEmail').value = email;
+      document.getElementById('loginPassword').value = password;
+      showAlert('success', `Pre-filled credentials for ${email}. Click 'Sign In' to authenticate.`);
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      hideAlerts();
+      
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const resp = await fetch(`${API_AUTH}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await resp.json();
+
+        if (resp.ok) {
+          saveSession(data.access_token, data.user);
+          showAlert('success', `Welcome back, ${data.user.full_name}! Authenticated as [${data.user.role.toUpperCase()}].`);
+        } else {
+          showAlert('error', data.detail || 'Login failed.');
+        }
+      } catch (err) {
+        showAlert('error', 'Could not connect to backend authorization API.');
+      }
+    }
+
+    async function handleSignup(e) {
+      e.preventDefault();
+      hideAlerts();
+
+      const full_name = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const role = document.getElementById('signupRole').value;
+
+      try {
+        const resp = await fetch(`${API_AUTH}/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, full_name, role })
+        });
+        const data = await resp.json();
+
+        if (resp.ok) {
+          saveSession(data.access_token, data.user);
+          showAlert('success', `Account created successfully! Logged in as [${data.user.role.toUpperCase()}].`);
+        } else {
+          showAlert('error', data.detail || 'Signup failed.');
+        }
+      } catch (err) {
+        showAlert('error', 'Could not connect to backend authorization API.');
+      }
+    }
+
+    function saveSession(token, user) {
+      localStorage.setItem('access_token', token);
+      localStorage.setItem('user_profile', JSON.stringify(user));
+      renderActiveSession();
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user_profile');
+      renderActiveSession();
+      showAlert('success', 'Logged out successfully.');
+    }
+
+    function renderActiveSession() {
+      const token = localStorage.getItem('access_token');
+      const userStr = localStorage.getItem('user_profile');
+      const sessionCard = document.getElementById('sessionCard');
+
+      if (token && userStr) {
+        const user = JSON.parse(userStr);
+        document.getElementById('sessionUserName').innerText = user.full_name;
+        document.getElementById('sessionUserEmail').innerText = user.email;
+        
+        const badge = document.getElementById('sessionRoleBadge');
+        badge.innerText = user.role.toUpperCase();
+        badge.className = 'role-badge role-' + user.role.toLowerCase();
+
+        document.getElementById('sessionTokenPreview').innerText = token;
+        sessionCard.style.display = 'block';
+      } else {
+        sessionCard.style.display = 'none';
+      }
+    }
+
+    function showAlert(type, msg) {
+      const err = document.getElementById('alertError');
+      const succ = document.getElementById('alertSuccess');
+      if (type === 'error') {
+        err.innerText = msg;
+        err.style.display = 'block';
+        succ.style.display = 'none';
+      } else {
+        succ.innerText = msg;
+        succ.style.display = 'block';
+        err.style.display = 'none';
+      }
+    }
+
+    function hideAlerts() {
+      document.getElementById('alertError').style.display = 'none';
+      document.getElementById('alertSuccess').style.display = 'none';
+    }
+
+    window.addEventListener('DOMContentLoaded', renderActiveSession);
+  </script>
+</body>
+</html>
