@@ -16,6 +16,7 @@
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
+  <div id="app-nav"></div>
   <div id="root"></div>
 
   <script type="text/babel">
@@ -158,33 +159,6 @@
 
       return (
         <div class="flex-1 flex flex-col h-screen overflow-hidden">
-          <header class="glass-card px-6 py-3 flex flex-wrap items-center justify-between border-b border-slate-800 gap-3">
-            <div class="flex items-center space-x-3">
-              <a href="index.html" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-1.5 rounded-xl font-bold transition">
-                <span>🏠 Main Dashboard</span>
-              </a>
-              <span class="text-slate-700">|</span>
-              <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 rounded-lg bg-[#f04b4c] flex items-center justify-center text-base shadow-md shadow-rose-600/30">
-                  💬
-                </div>
-                <div>
-                  <h1 class="text-sm font-bold text-white tracking-wide">Shopper AI Assistant</h1>
-                  <p class="text-[10px] text-[#7acfd6]">Conversational RAG Discovery</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="flex items-center space-x-1.5 overflow-x-auto text-xs">
-              <a href="shopper_chat.html" class="bg-[#f04b4c] text-white px-3 py-1.5 rounded-lg font-bold shadow-sm">💬 Chat</a>
-              <a href="store_directory.html" class="hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-transparent hover:border-slate-700 transition">🏬 Mall Map</a>
-              <a href="admin_governance.html" class="hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-transparent hover:border-slate-700 transition">📊 Governance</a>
-              <a href="document_studio.html" class="hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-transparent hover:border-slate-700 transition">📄 Ingest</a>
-              <a href="connection_status.html" class="hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-transparent hover:border-slate-700 transition">⚡ Setup</a>
-              <a href="auth.html" class="bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20 px-3 py-1.5 rounded-lg font-semibold transition">🔑 Auth</a>
-            </div>
-          </header>
-
           <div class="flex-1 flex overflow-hidden">
             <div class="w-2/5 border-r border-slate-800 flex flex-col glass-card">
               <div class="p-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
@@ -364,5 +338,6 @@
       );
     }
   </script>
+  <script src="nav.js"></script>
 </body>
 </html>

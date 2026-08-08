@@ -301,31 +301,7 @@
 </head>
 <body>
 
-  <!-- Top Universal Navigation Navbar -->
-  <nav style="background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px);">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <a href="index.html" style="display: flex; align-items: center; gap: 6px; background: rgba(30, 41, 59, 0.9); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.12); padding: 6px 14px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: 0.2s;">
-        🏠 Main Dashboard
-      </a>
-      <span style="color: #475569;">|</span>
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="font-size: 1.2rem;">🔑</span>
-        <div>
-          <div style="font-size: 0.9rem; font-weight: 700; color: #fff;">Identity & RBAC Auth</div>
-          <div style="font-size: 0.7rem; color: #7acfd6;">Admin, Store Manager & Shopper Roles</div>
-        </div>
-      </div>
-    </div>
-
-    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 0.8rem;">
-      <a href="shopper_chat.html" style="color: #cbd5e1; text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">💬 Chat</a>
-      <a href="store_directory.html" style="color: #cbd5e1; text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">🏬 Mall Map</a>
-      <a href="admin_governance.html" style="color: #cbd5e1; text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">📊 Governance</a>
-      <a href="document_studio.html" style="color: #cbd5e1; text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">📄 Ingest</a>
-      <a href="connection_status.html" style="color: #cbd5e1; text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">⚡ Setup</a>
-      <a href="auth.html" style="background: #f04b4c; color: #fff; text-decoration: none; padding: 6px 12px; border-radius: 8px; font-weight: 700; box-shadow: 0 2px 8px rgba(240,75,76,0.3);">🔑 Auth</a>
-    </div>
-  </nav>
+  <div id="app-nav"></div>
 
   <div class="auth-container">
     <div class="brand-header">
@@ -563,5 +539,6 @@
 
     window.addEventListener('DOMContentLoaded', renderActiveSession);
   </script>
+  <script src="nav.js"></script>
 </body>
 </html>
